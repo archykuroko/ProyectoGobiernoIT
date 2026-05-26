@@ -1,0 +1,63 @@
+.section {
+  background: var(--bg-1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  position: relative;
+}
+
+.divider {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+}
+
+.card {
+  position: relative;
+  padding: 48px 0;
+}
+
+.mark {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--acc);
+  letter-spacing: 0.25em;
+  margin-bottom: 24px;
+}
+
+.big {
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
+}
+
+.big em {
+  font-style: italic;
+  color: var(--acc);
+  font-weight: 300;
+}
+
+.body {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: 520px;
+}
+
+@media (max-width: 1080px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .divider {
+    display: none;
+  }
+}
