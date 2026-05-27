@@ -24,7 +24,7 @@ export const DOCUMENTS: Document[] = [
     author: 'Dirección General',
     summary:
       'Definición de las metas corporativas que orientan la estrategia institucional de CyberHunters para el ejercicio 2026.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Metas%20Corporativas.pdf',
   },
   {
     id: 'MIT-02',
@@ -36,7 +36,7 @@ export const DOCUMENTS: Document[] = [
     author: 'CIO Office',
     summary:
       'Metas tácticas del área de tecnología que dan soporte al cumplimiento de las metas corporativas.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Metas%20de%20TI.pdf',
   },
   {
     id: 'CG-03',
@@ -48,7 +48,7 @@ export const DOCUMENTS: Document[] = [
     author: 'PMO',
     summary:
       'Mapeo que conecta cada meta corporativa con sus respectivas metas de TI, iniciativas y entregables operativos.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Cascada%20de%20metas.pdf',
   },
   {
     id: 'ME-04',
@@ -60,7 +60,7 @@ export const DOCUMENTS: Document[] = [
     author: 'Strategy Office',
     summary:
       'Representación visual del modelo Balanced Scorecard adaptado al programa CyberHunters.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Mapa%20estrategico.pdf',
   },
   {
     id: 'CN-05',
@@ -72,7 +72,7 @@ export const DOCUMENTS: Document[] = [
     author: 'Finance + CISO',
     summary:
       'Justificación económica del servicio de gestión de vulnerabilidades, con análisis costo-beneficio a 36 meses.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Caso%20de%20negocio.pdf',
   },
   {
     id: 'CS-06',
@@ -84,7 +84,7 @@ export const DOCUMENTS: Document[] = [
     author: 'Service Design',
     summary:
       'Ficha técnica completa del servicio: alcance, entregables, niveles de servicio y modelo de soporte.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Cedula%20de%20servicio.pdf',
   },
   {
     id: 'IA-07',
@@ -96,7 +96,7 @@ export const DOCUMENTS: Document[] = [
     author: 'Asset Management',
     summary:
       'Catálogo exhaustivo de activos tecnológicos bajo el alcance del servicio, clasificados por criticidad.',
-    pdfUrl: '',
+    pdfUrl: '/docs/Inventario%20de%20activos.pdf',
   },
   {
     id: 'MR-08',
