@@ -100,6 +100,44 @@
   color: var(--muted-2);
 }
 
+.cardStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.statusReady {
+  color: var(--acc);
+}
+
+.statusReady .statusDot {
+  box-shadow: 0 0 6px var(--acc);
+}
+
+.statusSoon {
+  color: var(--muted-2);
+}
+
+.cardDimmed {
+  opacity: 0.72;
+}
+
+.cardDimmed:hover {
+  opacity: 1;
+}
+
 @media (max-width: 1080px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);

@@ -1,12 +1,9 @@
+import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import { DOCUMENTS } from '../../data/documents';
-import type { Document } from '../../data/documents';
 import styles from './Documents.module.css';
 
-interface DocumentsProps {
-  onSelect: (doc: Document) => void;
-}
-
-export default function Documents({ onSelect }: DocumentsProps) {
+export default function Documents() {
   return (
     <section className={`section ${styles.section}`} id="docs">
       <div className="section-head">
@@ -19,7 +16,7 @@ export default function Documents({ onSelect }: DocumentsProps) {
             Documentos<br /><em>del programa</em>
           </h2>
           <p className={styles.description}>
-            Selecciona un documento para abrirlo en el visor integrado.
+            Selecciona un documento para consultarlo en su página dedicada.
             Cada archivo forma parte del marco de gobierno y operación del servicio.
           </p>
         </div>
@@ -27,17 +24,17 @@ export default function Documents({ onSelect }: DocumentsProps) {
 
       <div className={styles.grid}>
         {DOCUMENTS.map((doc, i) => (
-          <button
+          <Link
             key={doc.id}
-            className={styles.card}
-            onClick={() => onSelect(doc)}
-            aria-label={`Abrir ${doc.title}`}
+            to={`/docs/${doc.id.toLowerCase()}`}
+            className={`${styles.card} ${!doc.ready ? styles.cardDimmed : ''}`}
+            aria-label={`Ver ${doc.title}`}
           >
             <div className={styles.cardTop}>
               <span className={styles.cardIndex}>
                 {String(i + 1).padStart(2, '0')} · {doc.code}
               </span>
-              <span className={styles.arrow}>↗</span>
+              <span className={styles.arrow}><ArrowUpRight size={14} strokeWidth={1.5} /></span>
             </div>
             <span className={styles.cardType}>{doc.type}</span>
             <span className={styles.cardTitle}>{doc.title}</span>
@@ -45,7 +42,11 @@ export default function Documents({ onSelect }: DocumentsProps) {
               <span>{doc.pages} pp.</span>
               <span>{doc.date}</span>
             </div>
-          </button>
+            <div className={`${styles.cardStatus} ${doc.ready ? styles.statusReady : styles.statusSoon}`}>
+              <span className={styles.statusDot} />
+              {doc.ready ? 'Disponible' : 'En preparación'}
+            </div>
+          </Link>
         ))}
       </div>
     </section>

@@ -1,5 +1,8 @@
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
+import { Diamond, X } from 'lucide-react';
 import type { Document } from '../../data/documents';
+import { DOC_REGISTRY } from '../../data/docRegistry';
+import { PDF_LINKS } from '../../data/pdfLinks';
 import styles from './DocViewer.module.css';
 
 interface DocViewerProps {
@@ -9,11 +12,11 @@ interface DocViewerProps {
 
 export default function DocViewer({ doc, onClose }: DocViewerProps) {
   const isOpen = doc !== null;
+  const pdfUrl = doc ? (PDF_LINKS[doc.id] ?? '') : '';
+  const DocPage = doc ? DOC_REGISTRY[doc.id] : null;
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [onClose]);
@@ -40,51 +43,52 @@ export default function DocViewer({ doc, onClose }: DocViewerProps) {
       >
         <div className={styles.head}>
           <div className={styles.headMeta}>
-            <span className={styles.headAcc}>◈</span>
+            <Diamond size={11} className={styles.headAcc} />
             <span>CH-DOC-{doc?.id ?? '—'}</span>
             <span>/</span>
             <span className={styles.headTitle}>{doc?.title ?? '—'}</span>
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Cerrar">
-            ✕
+            <X size={16} />
           </button>
         </div>
 
         <div className={styles.toolbar}>
           <div className={styles.toolbarGroup}>
-            <span>
-              {doc?.pages ? `${doc.pages} páginas` : '—'}
-            </span>
+            <span>{doc?.pages ? `${doc.pages} páginas` : '—'}</span>
             <span style={{ color: 'var(--muted-2)' }}>·</span>
             <span>{doc?.author ?? '—'}</span>
           </div>
           <div className={styles.toolbarGroup}>
-            {doc?.pdfUrl && (
+            {pdfUrl ? (
               <a
                 className={styles.toolbarBtn}
-                href={doc.pdfUrl}
+                href={pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                ↗ Abrir en nueva pestaña
+                ↓ Descargar PDF
               </a>
+            ) : (
+              <span className={styles.toolbarMuted}>PDF no disponible</span>
             )}
           </div>
         </div>
 
         <div className={styles.body}>
-          {doc?.pdfUrl ? (
-            <iframe
-              className={styles.pdfFrame}
-              src={doc.pdfUrl}
-              title={doc.title}
-            />
+          {isOpen && DocPage ? (
+            <Suspense fallback={
+              <div className={styles.loading}>
+                <span className={styles.loadingDot} />
+                Cargando documento…
+              </div>
+            }>
+              <DocPage />
+            </Suspense>
           ) : (
             <div className={styles.empty}>
               <div className={styles.emptyCode}>{doc?.code ?? '—'}</div>
-              <div className={styles.emptyLabel}>PDF no disponible aún</div>
-              <p>El documento será enlazado próximamente.<br />
-                Asigna la URL en <code>src/data/documents.ts</code> → campo <code>pdfUrl</code>.</p>
+              <div className={styles.emptyLabel}>Documento no disponible</div>
             </div>
           )}
         </div>

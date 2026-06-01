@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { ArrowUpRight } from 'lucide-react';
 import styles from './Hero.module.css';
 
 interface HeroProps {
@@ -49,7 +50,7 @@ export default function Hero({ onDocsClick }: HeroProps) {
 
         <div className={styles.cta}>
           <button className={styles.btnPrimary} onClick={onDocsClick}>
-            VER DOCUMENTACIÓN <span>↗</span>
+            VER DOCUMENTACIÓN <ArrowUpRight size={15} strokeWidth={2} />
           </button>
           <button className={styles.btnGhost} onClick={() => scrollTo('intro')}>
             Conocer el servicio

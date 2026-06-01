@@ -8,7 +8,6 @@
   transition: opacity 0.25s;
   backdrop-filter: blur(4px);
 }
-
 .backdrop.open {
   opacity: 1;
   pointer-events: auto;
@@ -19,7 +18,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(1000px, 92vw);
+  width: min(1080px, 92vw);
   z-index: 100;
   background: var(--bg-1);
   border-left: 1px solid var(--line-2);
@@ -28,7 +27,6 @@
   display: flex;
   flex-direction: column;
 }
-
 .panel.open {
   transform: translateX(0);
 }
@@ -51,14 +49,8 @@
   font-size: 11px;
   color: var(--muted);
 }
-
-.headAcc {
-  color: var(--acc);
-}
-
-.headTitle {
-  color: var(--text);
-}
+.headAcc { color: var(--acc); }
+.headTitle { color: var(--text); }
 
 .closeBtn {
   width: 36px;
@@ -73,10 +65,7 @@
   justify-content: center;
   transition: background 0.15s;
 }
-
-.closeBtn:hover {
-  background: var(--bg-3);
-}
+.closeBtn:hover { background: var(--bg-3); }
 
 .toolbar {
   display: flex;
@@ -90,12 +79,7 @@
   color: var(--muted);
   flex-shrink: 0;
 }
-
-.toolbarGroup {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
+.toolbarGroup { display: flex; gap: 12px; align-items: center; }
 
 .toolbarBtn {
   background: transparent;
@@ -106,49 +90,73 @@
   padding: 4px 10px;
   border-radius: 3px;
   transition: all 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.toolbarBtn:hover { color: var(--text); border-color: var(--text); }
+
+.toolbarMuted {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  padding: 4px 0;
 }
 
-.toolbarBtn:hover {
-  color: var(--text);
-  border-color: var(--text);
-}
-
+/* Scrollable body for rendered React doc components */
 .body {
   flex: 1;
-  overflow: hidden;
-  position: relative;
+  overflow-y: auto;
   background: var(--bg-0);
+  scroll-behavior: smooth;
 }
 
-.pdfFrame {
-  width: 100%;
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   height: 100%;
-  border: none;
-  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+}
+.loadingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--acc);
+  box-shadow: 0 0 8px var(--acc);
+  animation: pulse 1.2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
 }
 
+/* Empty state */
 .empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: 16px;
+  gap: 14px;
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--muted);
   text-align: center;
   padding: 40px;
 }
-
 .emptyCode {
-  font-size: 48px;
+  font-size: 44px;
   font-weight: 500;
   color: var(--acc-dim);
   letter-spacing: -0.03em;
   font-family: var(--font-sans);
 }
-
 .emptyLabel {
   color: var(--muted-2);
   font-size: 11px;

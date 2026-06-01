@@ -1,44 +1,53 @@
+import type { LucideIcon } from 'lucide-react';
+import { ShieldCheck, Crosshair, RefreshCw, Lock, Zap, Handshake } from 'lucide-react';
 import styles from './Values.module.css';
 
-const VALUES = [
+interface Value {
+  num: string;
+  Icon: LucideIcon;
+  title: string;
+  description: string;
+}
+
+const VALUES: Value[] = [
   {
     num: 'V·01',
-    icon: '◈',
+    Icon: ShieldCheck,
     title: 'Integridad',
     description:
       'Actuamos con honestidad técnica. Reportamos lo que encontramos, sin minimizar riesgos ni inflar hallazgos para justificar el servicio.',
   },
   {
     num: 'V·02',
-    icon: '◎',
+    Icon: Crosshair,
     title: 'Precisión',
     description:
       'Validamos manualmente cada hallazgo crítico. No entregamos reportes generados por automatismos sin contexto ni evidencia.',
   },
   {
     num: 'V·03',
-    icon: '⌛',
+    Icon: RefreshCw,
     title: 'Mejora continua',
     description:
       'Iteramos el servicio cada trimestre. Las amenazas evolucionan; nuestra metodología y herramientas también deben hacerlo.',
   },
   {
     num: 'V·04',
-    icon: '⊕',
+    Icon: Lock,
     title: 'Confidencialidad',
     description:
       'La información de nuestros clientes es sagrada. Operamos bajo controles que garantizan compartimentación y trazabilidad.',
   },
   {
     num: 'V·05',
-    icon: '⚡',
+    Icon: Zap,
     title: 'Velocidad',
     description:
       'Cada hora cuenta. Nuestro servicio mide el tiempo entre detección y remediación, y trabaja activamente para reducirlo.',
   },
   {
     num: 'V·06',
-    icon: '⊗',
+    Icon: Handshake,
     title: 'Colaboración',
     description:
       'Trabajamos con los equipos del cliente, no contra ellos. La seguridad efectiva se construye sobre confianza compartida.',
@@ -62,7 +71,9 @@ export default function Values() {
         {VALUES.map((v) => (
           <div className={styles.card} key={v.num}>
             <span className={styles.num}>{v.num}</span>
-            <span className={styles.icon} aria-hidden="true">{v.icon}</span>
+            <span className={styles.icon} aria-hidden="true">
+              <v.Icon size={18} strokeWidth={1.5} />
+            </span>
             <h3 className={styles.title}>{v.title}</h3>
             <p className={styles.description}>{v.description}</p>
           </div>
