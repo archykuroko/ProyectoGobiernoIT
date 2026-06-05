@@ -10,8 +10,8 @@ export const DOC_REGISTRY: Record<string, LazyExoticComponent<ComponentType>> = 
   'CN-05':  lazy(() => import('../pages/docs/CasoNegocio')),
   'CS-06':  lazy(() => import('../pages/docs/CedulaServicio')),
   'IA-07':  lazy(() => import('../pages/docs/InventarioActivos')),
-  'MR-08':  lazy(() => import('../pages/docs/DocPending')),
+  'MR-08':  lazy(() => import('../pages/docs/MatrizRiesgos')),
   'BT-09':  lazy(() => import('../pages/docs/DocPending')),
-  'BO-10':  lazy(() => import('../pages/docs/DocPending')),
+  'BO-10':  lazy(() => import('../pages/docs/BIAOperacional')),
   'PC-11':  lazy(() => import('../pages/docs/DocPending')),
 };
