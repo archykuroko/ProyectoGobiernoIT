@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { ShieldCheck, Shield, Zap, Scale, RefreshCw, Award, Info, AlertTriangle, Target } from 'lucide-react';
+import { ShieldCheck, Shield, Zap, Scale, RefreshCw, Award, Info, AlertTriangle, Target, Wrench } from 'lucide-react';
 import { Reveal } from '../../components/DocContent/Reveal';
 
 const TOC = [
@@ -13,6 +13,7 @@ const TOC = [
   { href: '#beneficios',   label: 'Beneficios esperados' },
   { href: '#planeacion',   label: 'Planeación · Personal' },
   { href: '#economica',    label: 'Justificación económica' },
+  { href: '#costos',       label: 'Costos del servicio' },
   { href: '#glosario',     label: 'Glosario técnico' },
   { href: '#referencias',  label: 'Referencias' },
 ];
@@ -49,6 +50,39 @@ const BENEFITS: Benefit[] = [
   { Icon: Scale,       title: 'Cumplimiento de normativas',       desc: 'Facilita el cumplimiento de buenas prácticas y estándares internacionales de gobierno de TI y seguridad de la información.' },
   { Icon: RefreshCw,   title: 'Mejora continua de la infraestructura', desc: 'El monitoreo constante mantiene los sistemas actualizados con los últimos parches, reduciendo la superficie de ataque.' },
   { Icon: Award,       title: 'Mayor confianza en los servicios', desc: 'Una gestión adecuada incrementa la confianza de usuarios, clientes y colaboradores en los sistemas digitales de la organización.' },
+];
+
+const COMPARE_ROWS = [
+  { feat: 'Enfoque', tool: 'Proporcionan la plataforma y las detecciones técnicas.', prop: 'Brinda el ciclo de vida completo de la vulnerabilidad.', vent: 'Se paga por resultados, no solo por visibilidad.' },
+  { feat: 'Alcance en código', tool: 'Requieren módulos adicionales para integrar el código de forma nativa.', prop: 'Integración directa con escaneo de repositorios y automatizaciones para su gestión.', vent: 'Mayor ahorro en licencias y plugins.' },
+  { feat: 'Gestión de remediación', tool: 'El cliente da seguimiento manual o configura desde cero su gestor de incidencias.', prop: 'Módulos ya automatizados y preconfigurados que asignan incidencias según el SLA.', vent: 'Reduce el costo de horas y mano de obra.' },
+  { feat: 'Seguimiento de SLAs', tool: 'Solo se muestra si la vulnerabilidad existe o no.', prop: 'Seguimiento continuo, dirección y escalamiento automático con el responsable.', vent: 'Evita multas regulatorias y aumenta la visibilidad.' },
+];
+
+const MAINT_LICENSES = [
+  { qty: 5,  name: 'Tenable Nessus Professional', desc: 'Renovación anual de licencia para escaneo de vulnerabilidades en activos de la empresa.', unit: '$92,900.00', total: '$464,500.00', free: false },
+  { qty: 35, name: 'Jira (plan estándar)', desc: 'Renovación anual para gestión de tickets y seguimiento de SLAs de remediación.', unit: '$1,637.40', total: '$57,309.00', free: false },
+  { qty: 1,  name: 'GitHub Advanced Security / Semgrep OSS', desc: 'Licencia de herramienta SAST para análisis de seguridad en repositorios de código fuente.', unit: '$0.00', total: '$0.00', free: true },
+  { qty: 1,  name: 'AWS EC2 (instancia t3.medium 24/7)', desc: 'Servicio en la nube anual para alojar automatizaciones y orquestación del servicio.', unit: '$14,604.00', total: '$14,604.00', free: false },
+];
+
+const MAINT_HW = [
+  { qty: 7, name: 'Laptop Lenovo IdeaPad Slim 3', sub: '(equipo existente)', desc: 'Mantenimiento preventivo anual: limpieza, revisión de componentes y actualización de SO y drivers.', unit: '$1,200.00', total: '$8,400.00' },
+  { qty: 1, name: 'Garantía extendida de equipos de cómputo', sub: '', desc: 'Extensión de garantía técnica para los equipos del equipo de seguridad durante el primer año de operación.', unit: '$2,500.00', total: '$2,500.00' },
+];
+
+const OPS_ROLES = [
+  { qty: 1, role: 'CISO / Security Manager', desc: 'Supervisión estratégica del servicio, gestión de riesgos y cumplimiento normativo (ISO 27001, NIST, COBIT).', monthly: '$95,000.00', totalM: '$95,000.00' },
+  { qty: 2, role: 'Analista de Ciberseguridad / Vulnerability Analyst', desc: 'Análisis de vulnerabilidades, priorización VPR, monitoreo continuo y soporte a auditorías.', monthly: '$50,000.00', totalM: '$100,000.00' },
+  { qty: 2, role: 'Ingeniero de Infraestructura / Sistemas', desc: 'Administración de servidores, redes y plataformas, y aplicación de controles de seguridad.', monthly: '$55,000.00', totalM: '$110,000.00' },
+  { qty: 2, role: 'QA / Tester de Software', desc: 'Aseguramiento de calidad, validación de requisitos y pruebas funcionales y de seguridad.', monthly: '$40,000.00', totalM: '$80,000.00' },
+];
+
+const OPS_SERVICES = [
+  { qty: 7, name: 'Servicio de internet (Totalplay 350 Mbps)', desc: 'Conectividad mensual por persona para soporte de operaciones y escaneos remotos.', monthly: '$1,398.00', totalM: '$9,786.00' },
+  { qty: 7, name: 'Servicio de electricidad', desc: 'Consumo estimado de 450 kWh/mes por equipo a $6.65 MXN/kWh para operación de equipos de cómputo.', monthly: '$2,992.00', totalM: '$20,944.00' },
+  { qty: 1, name: 'Instancia AWS EC2 (t3.medium, 24/7)', desc: 'Servidor en la nube para alojar automatizaciones y orquestación del servicio.', monthly: '$1,217.00', totalM: '$1,217.00' },
+  { qty: 1, name: 'Almacenamiento AWS S3 (500 GB logs)', desc: 'Almacenamiento en la nube para logs de escaneo, reportes históricos y respaldos de hallazgos.', monthly: '$580.00', totalM: '$580.00' },
 ];
 
 const GLOSSARY = [
@@ -230,11 +264,175 @@ export default function CasoNegocio() {
                 </Reveal>
               ))}
               <Reveal><div className="doc-callout"><Info size={18} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0 }} /><p>La propuesta va más allá de implementar una de estas herramientas: si bien son potentes para la detección, la remediación sigue en manos de un equipo humano alineado a las prioridades del negocio. El servicio las <strong>integra de forma inteligente</strong> añadiendo un proceso formal de remediación.</p></div></Reveal>
+              <Reveal>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', margin:'24px 0 8px' }}>TABLA 1 · COMPARATIVO FRENTE A LA PROPUESTA</div>
+                <table className="doc-tbl">
+                  <thead><tr><th>Característica</th><th>Herramienta de VM individual</th><th>Propuesta de servicio</th><th>Ventaja económica</th></tr></thead>
+                  <tbody>
+                    {COMPARE_ROWS.map((r) => (
+                      <tr key={r.feat}>
+                        <td className="em">{r.feat}</td>
+                        <td style={{ color:'var(--muted)', fontSize:13 }}>{r.tool}</td>
+                        <td style={{ fontSize:13 }}>{r.prop}</td>
+                        <td style={{ color:'var(--acc)', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.vent}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Reveal>
             </section>
 
             {/* 5.10 */}
+            <section id="costos" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">5.10</span><h2>Costos del servicio</h2><span className="rule" /></div></Reveal>
+
+              {/* TCO strip */}
+              <Reveal style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:32 }}>
+                <div style={{ background:'var(--acc-soft)', padding:'22px 20px' }}>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--acc)', marginBottom:6 }}>Costo total de operación · TCO</div>
+                  <div style={{ fontSize:'clamp(26px,3.5vw,38px)', fontWeight:500, letterSpacing:'-.03em', lineHeight:1, color:'var(--acc)' }}>$5,557,637</div>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', marginTop:6, opacity:.8 }}>MXN / año</div>
+                </div>
+                <div style={{ background:'var(--bg-0)', padding:'22px 20px' }}>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted)', marginBottom:6 }}>Mantenimiento</div>
+                  <div style={{ fontSize:26, fontWeight:500, letterSpacing:'-.02em', lineHeight:1 }}>$547,313</div>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', marginTop:6 }}>MXN / año</div>
+                </div>
+                <div style={{ background:'var(--bg-0)', padding:'22px 20px' }}>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted)', marginBottom:6 }}>Operación</div>
+                  <div style={{ fontSize:26, fontWeight:500, letterSpacing:'-.02em', lineHeight:1 }}>$5,010,324</div>
+                  <div style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', marginTop:6 }}>MXN / año</div>
+                </div>
+              </Reveal>
+
+              {/* Maintenance subhead */}
+              <Reveal>
+                <div style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 18px', background:'var(--bg-3)', border:'1px solid var(--line)', borderRadius:'var(--radius)', marginBottom:10 }}>
+                  <Wrench size={14} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0 }} />
+                  <span style={{ fontSize:15, fontWeight:600 }}>Costos de mantenimiento</span>
+                  <span style={{ flex:1 }} />
+                  <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)' }}>$547,313.00 / año</span>
+                </div>
+              </Reveal>
+
+              <Reveal>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', margin:'14px 0 6px' }}>Licencias y herramientas</div>
+                <table className="doc-tbl" style={{ marginBottom:12 }}>
+                  <thead><tr><th style={{ width:46, textAlign:'center' }}>Cant.</th><th>Nombre</th><th>Descripción</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Costo unit. (MXN)</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Total (MXN)</th></tr></thead>
+                  <tbody>
+                    {MAINT_LICENSES.map((r) => (
+                      <tr key={r.name}>
+                        <td style={{ textAlign:'center', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.qty}</td>
+                        <td className="em" style={{ color: r.free ? 'var(--acc)' : undefined }}>{r.name}</td>
+                        <td style={{ color:'var(--muted)', fontSize:12 }}>{r.desc}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12, color: r.free ? 'var(--acc)' : undefined }}>{r.unit}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12, color: r.free ? 'var(--acc)' : undefined }}>{r.total}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL · Licencias</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$536,413.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Reveal>
+
+              <Reveal>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', margin:'14px 0 6px' }}>Mantenimiento de hardware</div>
+                <table className="doc-tbl" style={{ marginBottom:12 }}>
+                  <thead><tr><th style={{ width:46, textAlign:'center' }}>Cant.</th><th>Nombre</th><th>Descripción</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Costo anual (MXN)</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Total (MXN)</th></tr></thead>
+                  <tbody>
+                    {MAINT_HW.map((r) => (
+                      <tr key={r.name}>
+                        <td style={{ textAlign:'center', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.qty}</td>
+                        <td className="em">{r.name}{r.sub && <span style={{ fontWeight:400, color:'var(--muted)' }}> {r.sub}</span>}</td>
+                        <td style={{ color:'var(--muted)', fontSize:12 }}>{r.desc}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.unit}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.total}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL · Hardware</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$10,900.00</td>
+                    </tr>
+                    <tr style={{ background:'var(--acc-soft)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.06em' }}>TOTAL MANTENIMIENTO</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:14, fontWeight:700, color:'var(--acc)' }}>$547,313.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Reveal>
+
+              {/* Operations subhead */}
+              <Reveal>
+                <div style={{ display:'flex', alignItems:'center', gap:12, padding:'13px 18px', background:'var(--bg-3)', border:'1px solid var(--line)', borderRadius:'var(--radius)', margin:'24px 0 10px' }}>
+                  <RefreshCw size={14} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0 }} />
+                  <span style={{ fontSize:15, fontWeight:600 }}>Costos de operación</span>
+                  <span style={{ flex:1 }} />
+                  <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)' }}>$5,010,324.00 / año</span>
+                </div>
+              </Reveal>
+
+              <Reveal>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', margin:'14px 0 6px' }}>Roles y sueldos</div>
+                <table className="doc-tbl" style={{ marginBottom:12 }}>
+                  <thead><tr><th style={{ width:46, textAlign:'center' }}>Cant.</th><th>Rol</th><th>Descripción</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Sueldo mensual (MXN)</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Total mensual (MXN)</th></tr></thead>
+                  <tbody>
+                    {OPS_ROLES.map((r) => (
+                      <tr key={r.role}>
+                        <td style={{ textAlign:'center', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.qty}</td>
+                        <td className="em">{r.role}</td>
+                        <td style={{ color:'var(--muted)', fontSize:12 }}>{r.desc}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.monthly}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.totalM}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL mensual</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$385,000.00</td>
+                    </tr>
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL anual (×12)</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$4,620,000.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Reveal>
+
+              <Reveal>
+                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', margin:'14px 0 6px' }}>Servicios operativos</div>
+                <table className="doc-tbl" style={{ marginBottom:12 }}>
+                  <thead><tr><th style={{ width:46, textAlign:'center' }}>Cant.</th><th>Nombre</th><th>Descripción</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Costo mensual (MXN)</th><th style={{ textAlign:'right', fontFamily:'var(--font-mono)' }}>Total mensual (MXN)</th></tr></thead>
+                  <tbody>
+                    {OPS_SERVICES.map((r) => (
+                      <tr key={r.name}>
+                        <td style={{ textAlign:'center', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.qty}</td>
+                        <td className="em">{r.name}</td>
+                        <td style={{ color:'var(--muted)', fontSize:12 }}>{r.desc}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.monthly}</td>
+                        <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:12 }}>{r.totalM}</td>
+                      </tr>
+                    ))}
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL mensual</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$32,527.00</td>
+                    </tr>
+                    <tr style={{ background:'var(--bg-3)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)', letterSpacing:'.06em' }}>SUBTOTAL anual (×12)</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:13, fontWeight:600 }}>$390,324.00</td>
+                    </tr>
+                    <tr style={{ background:'var(--acc-soft)' }}>
+                      <td colSpan={4} style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.06em' }}>TOTAL OPERACIÓN</td>
+                      <td style={{ textAlign:'right', fontFamily:'var(--font-mono)', fontSize:14, fontWeight:700, color:'var(--acc)' }}>$5,010,324.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </Reveal>
+            </section>
+
+            {/* 5.11 */}
             <section id="glosario" style={{ scrollMarginTop:16, marginBottom:56 }}>
-              <Reveal><div className="doc-sec-h"><span className="idx">5.10</span><h2>Glosario técnico</h2><span className="rule" /></div></Reveal>
+              <Reveal><div className="doc-sec-h"><span className="idx">5.11</span><h2>Glosario técnico</h2><span className="rule" /></div></Reveal>
               <Reveal>
                 <dl style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden' }}>
                   {GLOSSARY.map(([term, def]) => (
@@ -247,9 +445,9 @@ export default function CasoNegocio() {
               </Reveal>
             </section>
 
-            {/* 5.11 */}
+            {/* 5.12 */}
             <section id="referencias" style={{ scrollMarginTop:16 }}>
-              <Reveal><div className="doc-sec-h"><span className="idx">5.11</span><h2>Referencias</h2><span className="rule" /></div></Reveal>
+              <Reveal><div className="doc-sec-h"><span className="idx">5.12</span><h2>Referencias</h2><span className="rule" /></div></Reveal>
               <Reveal>
                 <ol style={{ listStyle:'none', padding:0, margin:0, counterReset:'r' }}>
                   {['NIST, «National Vulnerability Database», NIST, 3 ago 2023. nvd.nist.gov/vuln','IBM, «¿Qué es la gestión de vulnerabilidades?», Think. ibm.com/mx-es/think/topics/vulnerability-management','Tenable Inc., «Tenable One». tenable.com/products/tenable-one','Qualys Inc., «Enterprise Cyber Risk and Security». qualys.com','Rapid7, «Rapid7 Managed Cybersecurity». rapid7.com'].map((ref, i) => (
