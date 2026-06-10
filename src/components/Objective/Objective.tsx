@@ -19,18 +19,18 @@ export default function Objective() {
         <div className={styles.cell}>
           <p className={styles.cellLabel}>// OBJETIVO</p>
           <p className={styles.cellBig}>
-            Reducir de forma medible la exposición al riesgo cibernético de nuestros clientes
+            Reducir de forma medible la exposición frente a ataques cibernéticos de nuestros clientes
             mediante un servicio gestionado de vulnerabilidades que priorice según impacto
             de negocio.
           </p>
           <p className={styles.cellBody}>
-            Buscamos llevar a las organizaciones desde un estado reactivo —donde las
-            vulnerabilidades se descubren tras un incidente— hasta un modelo proactivo en
+            Buscamos llevar a las organizaciones desde un estado reactivo (donde las
+            vulnerabilidades se descubren tras un incidente) hasta un modelo proactivo en
             el que cada hallazgo cuenta con un plan de remediación, un responsable asignado
             y una fecha verificable de cierre.
           </p>
           <div className={styles.chips}>
-            <span className={`${styles.chip} ${styles.chipOn}`}>Reducción de MTTR</span>
+            <span className={`${styles.chip} ${styles.chipOn}`}>Reducción de ataques</span>
             <span className={`${styles.chip} ${styles.chipOn}`}>Cobertura 100% activos</span>
             <span className={styles.chip}>SLA por severidad</span>
           </div>
@@ -51,7 +51,6 @@ export default function Objective() {
           <div className={styles.chips}>
             <span className={styles.chip}>Escaneo continuo</span>
             <span className={styles.chip}>Validación manual</span>
-            <span className={`${styles.chip} ${styles.chipOn}`}>Threat Intel</span>
             <span className={styles.chip}>Remediación asistida</span>
           </div>
         </div>

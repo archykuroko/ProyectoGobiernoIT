@@ -1,10 +1,10 @@
 import styles from './Nav.module.css';
 
 interface NavProps {
-  onDocsClick: () => void;
+  onDocsClick?: () => void;
 }
 
-export default function Nav({ onDocsClick }: NavProps) {
+export default function Nav(_props: NavProps) {
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -26,11 +26,6 @@ export default function Nav({ onDocsClick }: NavProps) {
         <a onClick={() => scrollTo('mv')} href="#mv">Misión</a>
         <a onClick={() => scrollTo('val')} href="#val">Valores</a>
       </div>
-
-      <button className={styles.cta} onClick={onDocsClick}>
-        <span className={styles.pulse} />
-        SISTEMA OPERATIVO
-      </button>
     </nav>
   );
 }

@@ -9,15 +9,15 @@ export default function Documents() {
       <div className="section-head">
         <div>
           <div className="section-num">02 <span>/ 08</span></div>
-          <div className="section-kicker">Índice / Repositorio</div>
+          <div className="section-kicker">Índice</div>
         </div>
         <div>
           <h2 className="section-title">
-            Documentos<br /><em>del programa</em>
+            Documentos<br /><em>del servicio</em>
           </h2>
           <p className={styles.description}>
             Selecciona un documento para consultarlo en su página dedicada.
-            Cada archivo forma parte del marco de gobierno y operación del servicio.
+            Cada archivo forma parte de la dodcumentación del gobierno de TI de CyberHunters y de sus operaciones.
           </p>
         </div>
       </div>
@@ -38,10 +38,6 @@ export default function Documents() {
             </div>
             <span className={styles.cardType}>{doc.type}</span>
             <span className={styles.cardTitle}>{doc.title}</span>
-            <div className={styles.cardMeta}>
-              <span>{doc.pages} pp.</span>
-              <span>{doc.date}</span>
-            </div>
             <div className={`${styles.cardStatus} ${doc.ready ? styles.statusReady : styles.statusSoon}`}>
               <span className={styles.statusDot} />
               {doc.ready ? 'Disponible' : 'En preparación'}

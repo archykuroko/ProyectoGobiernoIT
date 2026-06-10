@@ -1,15 +1,12 @@
-export type DocType = 'Estratégico' | 'Operativo' | 'Riesgo' | 'Continuidad';
-
 export interface Document {
   id: string;
   code: string;
   title: string;
-  type: DocType;
+  type: string;
   pages: number;
   date: string;
   author: string;
   summary: string;
-  /** Whether the document content page is published and ready */
   ready: boolean;
 }
 
@@ -18,7 +15,7 @@ export const DOCUMENTS: Document[] = [
     id: 'MC-01',
     code: 'MC',
     title: 'Metas Corporativas',
-    type: 'Estratégico',
+    type: 'Metas',
     pages: 6,
     date: '2026·02·10',
     author: 'Dirección General',
@@ -29,7 +26,7 @@ export const DOCUMENTS: Document[] = [
     id: 'MIT-02',
     code: 'MIT',
     title: 'Metas de TI',
-    type: 'Estratégico',
+    type: 'Metas',
     pages: 5,
     date: '2026·02·14',
     author: 'CIO Office',
@@ -40,7 +37,7 @@ export const DOCUMENTS: Document[] = [
     id: 'CG-03',
     code: 'CG',
     title: 'Cascada de Metas',
-    type: 'Estratégico',
+    type: 'Metas',
     pages: 4,
     date: '2026·02·20',
     author: 'PMO',
@@ -51,7 +48,7 @@ export const DOCUMENTS: Document[] = [
     id: 'ME-04',
     code: 'ME',
     title: 'Mapa Estratégico',
-    type: 'Estratégico',
+    type: 'Metas',
     pages: 3,
     date: '2026·02·22',
     author: 'Strategy Office',
@@ -62,7 +59,7 @@ export const DOCUMENTS: Document[] = [
     id: 'CN-05',
     code: 'CN',
     title: 'Caso de Negocio',
-    type: 'Estratégico',
+    type: 'Documentación del servicio',
     pages: 9,
     date: '2026·03·02',
     author: 'Finance + CISO',
@@ -73,7 +70,7 @@ export const DOCUMENTS: Document[] = [
     id: 'CS-06',
     code: 'CS',
     title: 'Cédula de Servicio',
-    type: 'Operativo',
+    type: 'Documentación del servicio',
     pages: 7,
     date: '2026·03·15',
     author: 'Service Design',
@@ -84,7 +81,7 @@ export const DOCUMENTS: Document[] = [
     id: 'IA-07',
     code: 'IA',
     title: 'Inventario de Activos',
-    type: 'Operativo',
+    type: 'Documentación del servicio',
     pages: 11,
     date: '2026·03·20',
     author: 'Asset Management',
@@ -95,7 +92,7 @@ export const DOCUMENTS: Document[] = [
     id: 'MR-08',
     code: 'MR',
     title: 'Matriz de Riesgos',
-    type: 'Riesgo',
+    type: 'Gestión de riesgos',
     pages: 8,
     date: '2026·05·31',
     author: 'Risk & Compliance',
@@ -106,7 +103,7 @@ export const DOCUMENTS: Document[] = [
     id: 'BT-09',
     code: 'BT',
     title: 'BIA Táctico',
-    type: 'Continuidad',
+    type: 'Gestión de riesgos',
     pages: 6,
     date: '2026·04·05',
     author: 'BCM Team',
@@ -117,7 +114,7 @@ export const DOCUMENTS: Document[] = [
     id: 'BO-10',
     code: 'BO',
     title: 'BIA Operacional',
-    type: 'Continuidad',
+    type: 'Gestión de riesgos',
     pages: 6,
     date: '2026·06·01',
     author: 'BCM Team',
@@ -128,7 +125,7 @@ export const DOCUMENTS: Document[] = [
     id: 'PC-11',
     code: 'PC',
     title: 'Plan de Continuidad',
-    type: 'Continuidad',
+    type: 'Gestión de riesgos',
     pages: 10,
     date: '2026·04·25',
     author: 'BCM Team + Ops',

@@ -31,8 +31,8 @@ export default function Hero({ onDocsClick }: HeroProps) {
       <div className={styles.left}>
         <div className={styles.hudTag}>
           <span className={styles.hudBar} />
-          <span>CH·OPS / v.2026.05 ·</span>
-          <span className={styles.hudLive}>LIVE</span>
+          <span>CH OPS / v1.0 ·</span>
+          <span className={styles.hudLive}>ISO 27001</span>
         </div>
 
         <h1 className={styles.title}>
@@ -45,7 +45,7 @@ export default function Hero({ onDocsClick }: HeroProps) {
           <strong>gestión de vulnerabilidades</strong> de extremo a extremo.
           Identificamos, priorizamos y remediamos las debilidades de tu infraestructura
           antes de que se conviertan en una brecha. Detección continua, contexto de negocio
-          y métricas que importan a la dirección.
+          y métricas que realmente importan a la alta dirección.
         </p>
 
         <div className={styles.cta}>

@@ -1,4 +1,4 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Reveal } from '../../components/DocContent/Reveal';
 
 const PROCESSES = [
@@ -356,6 +356,18 @@ export default function InventarioActivos() {
         <div className="doc-block">
           <Reveal><div className="doc-sec-h"><span className="idx">7.3</span><h2>Diagramas de proceso por actor</h2><span className="rule" /></div></Reveal>
           <Reveal className="doc-prose"><p>Cada diagrama muestra el flujo de actividades de un macroproceso organizado por actor (carril). Las tarjetas de <em>Decisión</em> indican bifurcaciones, como la asunción formal del riesgo en VM-PROC3.</p></Reveal>
+          <Reveal>
+            <div className="doc-callout" style={{ display:'flex', alignItems:'flex-start', gap:12, marginTop:10 }}>
+              <ExternalLink size={15} strokeWidth={2} style={{ color:'var(--acc)', flexShrink:0, marginTop:2 }} />
+              <p style={{ margin:0, fontSize:13, lineHeight:1.6 }}>
+                Para consultar la documentación completa de los procesos —incluyendo políticas, estándares y procedimientos de soporte—, puede acceder al{' '}
+                <a href="https://drive.google.com/file/d/1fovMrtjeQ-XXHi2gaY1yC8XeYNBpPmjp/view?usp=drive_link" target="_blank" rel="noopener noreferrer" style={{ color:'var(--acc)', textDecoration:'none', borderBottom:'1px solid var(--acc-dim)' }}>
+                  documento oficial de modelo de procesos
+                </a>
+                {' '}alojado en Google Drive.
+              </p>
+            </div>
+          </Reveal>
           <div style={{ marginTop:18 }}>
             {SWIM_DATA.map((proc) => (
               <Reveal key={proc.id}>

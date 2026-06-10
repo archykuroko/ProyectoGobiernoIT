@@ -8,9 +8,8 @@ export const PDF_LINKS: Record<string, string> = {
   'CN-05':  'https://drive.google.com/uc?export=download&id=1Z5ZcHtHKIYe2J8rheF3tMnag5pgULXGT',
   'CS-06':  'https://drive.google.com/uc?export=download&id=11iUeIBFuCYG7-dyirXDHXpogNXNJGOwV',
   'IA-07':  'https://drive.google.com/uc?export=download&id=1kbPzapndrz94b9A0HAbJQ4eXs52OyWfV',
-  // Uncomment and fill in when PDFs are ready:
-  // 'MR-08': '/docs/Matriz%20de%20riesgos.pdf',
+  'MR-08':  'https://docs.google.com/spreadsheets/d/1akwf2YY0Dl5zdZlYNqWqMntD4BIe8SOs/edit?usp=sharing&ouid=104063987169185866082&rtpof=true&sd=true',
+  'BO-10':  'https://drive.google.com/uc?export=download&id=1OMuTPDbtO7EKZiLeXCsBf373BaVpDJkx',
   // 'BT-09': '/docs/BIA%20Tactico.pdf',
-  // 'BO-10': '/docs/BIA%20Operacional.pdf',
   // 'PC-11': '/docs/Plan%20de%20continuidad.pdf',
 };

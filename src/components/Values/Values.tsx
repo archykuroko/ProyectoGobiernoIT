@@ -22,14 +22,14 @@ const VALUES: Value[] = [
     Icon: Crosshair,
     title: 'Precisión',
     description:
-      'Validamos manualmente cada hallazgo crítico. No entregamos reportes generados por automatismos sin contexto ni evidencia.',
+      'Validamos manualmente cada hallazgo crítico. No entregamos reportes generados por automatizaciones sin contexto ni evidencia.',
   },
   {
     num: 'V·03',
     Icon: RefreshCw,
     title: 'Mejora continua',
     description:
-      'Iteramos el servicio cada trimestre. Las amenazas evolucionan; nuestra metodología y herramientas también deben hacerlo.',
+      'Iteramos el servicio constantemente. Las amenazas evolucionan; nuestra metodología y herramientas también deben hacerlo.',
   },
   {
     num: 'V·04',

@@ -9,9 +9,8 @@ export default function Footer() {
       <div className={styles.top}>
         <div>
           <div className={styles.brand}>
-            {/* Replace with <img> when logo is available */}
             <div className={styles.brandLogoPlaceholder}>CH</div>
-            <span className={styles.brandName}>CYBER·HUNTERS</span>
+            <span className={styles.brandName}>CYBERHUNTERS</span>
           </div>
           <p className={styles.desc}>
             Gestión de vulnerabilidades end-to-end. Detección continua, priorización con
@@ -35,14 +34,13 @@ export default function Footer() {
 
         <div className={styles.col}>
           <h4>Contacto</h4>
-          <a href="mailto:ops@cyberhunters.mx">ops@cyberhunters.mx</a>
-          <a href="tel:+525500000000">+52 55 0000 0000</a>
+          <a href="mailto:support@cyberhunters.com">support@cyberhunters.com</a>
+          <a href="tel:+525500000000">01 800 CYBERHUNTERS</a>
         </div>
       </div>
 
       <div className={styles.bottom}>
         <span>© 2026 CyberHunters. Todos los derechos reservados.</span>
-        <span>NODE·07 / MX·CDMX / SECURE LINK</span>
       </div>
     </footer>
   );

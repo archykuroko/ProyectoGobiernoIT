@@ -24,7 +24,7 @@ export default function MissionVision() {
             de su infraestructura antes de que sean explotadas.
           </p>
           <p className={styles.body}>
-            Combinamos automatización avanzada, inteligencia de amenazas y experiencia de
+            Combinamos automatizaciones, inteligencia de amenazas por expertos y experiencia de
             analistas certificados para entregar un servicio medible, transparente y alineado
             a las metas estratégicas de cada organización que confía en nosotros.
           </p>
@@ -35,14 +35,14 @@ export default function MissionVision() {
         <div className={styles.card}>
           <div className={styles.mark}>// VISIÓN</div>
           <p className={styles.big}>
-            Ser el referente regional en{' '}
+            Ser la empresa referente en{' '}
             <em>gestión proactiva de vulnerabilidades</em>, reconocidos por elevar
             la madurez ciberseguridad de las organizaciones que confían en nosotros.
           </p>
           <p className={styles.body}>
             Aspiramos a que cada cliente CyberHunters cuente con visibilidad total de su
-            superficie de ataque, tiempos de remediación de clase mundial y un programa
-            certificable bajo estándares internacionales en un horizonte de tres años.
+            superficie de ataque, tiempos de remediación alineados al estándar y cumplimiento de 
+            las normas ISO 27001.
           </p>
         </div>
       </div>
