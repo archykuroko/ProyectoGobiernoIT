@@ -11,5 +11,5 @@ export const PDF_LINKS: Record<string, string> = {
   'MR-08':  'https://docs.google.com/spreadsheets/d/1akwf2YY0Dl5zdZlYNqWqMntD4BIe8SOs/edit?usp=sharing&ouid=104063987169185866082&rtpof=true&sd=true',
   'BO-10':  'https://drive.google.com/uc?export=download&id=1OMuTPDbtO7EKZiLeXCsBf373BaVpDJkx',
   // 'BT-09': '/docs/BIA%20Tactico.pdf',
-  // 'PC-11': '/docs/Plan%20de%20continuidad.pdf',
+  'PC-11': 'https://drive.google.com/uc?export=download&id=1PyaJ19nX4H6heF9aZRzRl1XSszFzx7BM',
 };

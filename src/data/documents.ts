@@ -127,9 +127,9 @@ export const DOCUMENTS: Document[] = [
     title: 'Plan de Continuidad',
     type: 'Gestión de riesgos',
     pages: 10,
-    date: '2026·04·25',
+    date: '2026·06·12',
     author: 'BCM Team + Ops',
     summary: 'Estrategia integral de continuidad operativa y recuperación ante desastres del servicio CyberHunters.',
-    ready: false,
+    ready: true,
   },
 ];
