@@ -1,5 +1,29 @@
+import { useState, useEffect, useRef } from 'react';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 import { Reveal } from '../../components/DocContent/Reveal';
+
+const TOC = [
+  { href: '#procesos',      label: 'Relación de procesos' },
+  { href: '#sipoc',         label: 'Modelo de procesos · SIPOC' },
+  { href: '#diagramas',     label: 'Diagramas por actor' },
+  { href: '#swim-VM-PROC1', label: '· VM-PROC1 · Escaneo' },
+  { href: '#swim-VM-PROC2', label: '· VM-PROC2 · Análisis' },
+  { href: '#swim-VM-PROC3', label: '· VM-PROC3 · Remediación' },
+  { href: '#catalogo',      label: 'Catálogo de activos' },
+];
+
+function useTocActive(ids: string[]) {
+  const [active, setActive] = useState(ids[0] || '');
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => { entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }); },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [ids]);
+  return active;
+}
 
 const PROCESSES = [
   {
@@ -196,7 +220,7 @@ function SwimBlock({ proc }: { proc: SLProc }) {
   const totalH = proc.lanes.length * ROW_H;
   const arrows = computeArrows(proc);
   return (
-    <div id={`swim-${proc.id}`} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:22 }}>
+    <div id={`swim-${proc.id}`} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:22, scrollMarginTop:16 }}>
       <div style={{ display:'flex', alignItems:'center', gap:14, padding:'16px 22px', background:'var(--bg-0)', borderBottom:'1px solid var(--line)', flexWrap:'wrap' }}>
         <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.1em', border:'1px solid var(--acc-dim)', padding:'4px 10px', borderRadius:50 }}>{proc.id}</span>
         <div style={{ flex:1, minWidth:200 }}>
@@ -251,6 +275,16 @@ function SwimBlock({ proc }: { proc: SLProc }) {
 }
 
 export default function InventarioActivos() {
+  const ids = TOC.map(t => t.href.slice(1));
+  const active = useTocActive(ids);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollTo = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <>
       <div className="dochero">
@@ -267,162 +301,186 @@ export default function InventarioActivos() {
         </div>
       </div>
 
-      <div className="doc-wrap">
+      <div className="doc-wrap" style={{ paddingTop:56, paddingBottom:56 }} ref={scrollRef}>
+        <div className="doc-withtoc">
 
-        {/* 7.1 Procesos */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">7.1</span><h2>Relación de procesos</h2><span className="rule" /></div></Reveal>
-          <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
-            {PROCESSES.map((p) => (
-              <div key={p.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'24px 22px' }}>
-                <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.1em', border:'1px solid var(--acc-dim)', padding:'4px 9px', borderRadius:50, display:'inline-block', marginBottom:14 }}>{p.id}</span>
-                <h3 style={{ fontSize:18, fontWeight:600, margin:'0 0 14px', lineHeight:1.2 }}>{p.title}</h3>
-                <div style={{ marginBottom:14 }}>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Descripción</div>
-                  <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                    {p.desc.map((d,i) => <li key={i} style={{ fontSize:13, lineHeight:1.5, color:'#cfd5dd', paddingLeft:16, position:'relative', marginBottom:6 }}><span style={{ position:'absolute', left:0, color:'var(--acc)' }}>›</span>{d}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Factores de éxito</div>
-                  <ul style={{ listStyle:'none', padding:0, margin:0 }}>
-                    {p.succ.map((s,i) => <li key={i} style={{ fontSize:13, lineHeight:1.5, color:'#cfd5dd', paddingLeft:16, position:'relative', marginBottom:6 }}><span style={{ position:'absolute', left:0, color:'var(--warn)', fontSize:11 }}>◆</span>{s}</li>)}
-                  </ul>
-                </div>
-              </div>
+          {/* TOC */}
+          <nav className="doc-toc">
+            <div className="tl">Contenido</div>
+            {TOC.map(t => (
+              <a
+                key={t.href}
+                href={t.href}
+                className={active === t.href.slice(1) ? 'active' : ''}
+                onClick={(e) => scrollTo(t.href.slice(1), e)}
+                style={t.href.startsWith('#swim-') ? { paddingLeft: 24, fontSize: 11, opacity: active === t.href.slice(1) ? 1 : 0.7 } : undefined}
+              >
+                {t.label}
+              </a>
             ))}
-          </Reveal>
-        </div>
+          </nav>
 
-        {/* 7.2 SIPOC */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">7.2</span><h2>Modelo de procesos de nivel 1</h2><span className="rule" /></div></Reveal>
-          <Reveal className="doc-prose"><p>El modelo SIPOC (<em>Suppliers-Inputs-Process-Outputs-Customers</em>) describe, a alto nivel, los insumos y clientes de cada macroproceso del servicio. Los procesos enlazados dirigen a los diagramas de actividad por actor en la sección 7.3.</p></Reveal>
-          <Reveal>
-            <div style={{ overflowX:'auto', marginTop:18 }}>
-              <div style={{ display:'grid', gridTemplateColumns:'200px 1fr 36px 180px 36px 1fr 200px', minWidth:960, border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', background:'var(--line)', gap:1 }}>
-                {/* Header row */}
-                {['Requerimientos del cliente','Insumos','','Procesos clave','','Salidas','Clientes'].map((label, i) => (
-                  <div key={`h-${i}`} style={{ gridColumn:i+1, gridRow:1, background:(i===0||i===6) ? 'var(--bg-3)' : 'var(--bg-2)', padding:'11px 14px', fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--acc)', display:'flex', alignItems:'center', justifyContent:(i===2||i===4) ? 'center' : undefined }}>
-                    {label}
+          {/* Content */}
+          <main style={{ minWidth:0 }}>
+
+            {/* 7.1 Procesos */}
+            <section id="procesos" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">7.1</span><h2>Relación de procesos</h2><span className="rule" /></div></Reveal>
+              <Reveal style={{ overflowX:'auto' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, minWidth:660 }}>
+                {PROCESSES.map((p) => (
+                  <div key={p.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'24px 22px' }}>
+                    <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.1em', border:'1px solid var(--acc-dim)', padding:'4px 9px', borderRadius:50, display:'inline-block', marginBottom:14 }}>{p.id}</span>
+                    <h3 style={{ fontSize:18, fontWeight:600, margin:'0 0 14px', lineHeight:1.2 }}>{p.title}</h3>
+                    <div style={{ marginBottom:14 }}>
+                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Descripción</div>
+                      <ul style={{ listStyle:'none', padding:0, margin:0 }}>
+                        {p.desc.map((d,i) => <li key={i} style={{ fontSize:13, lineHeight:1.5, color:'#cfd5dd', paddingLeft:16, position:'relative', marginBottom:6 }}><span style={{ position:'absolute', left:0, color:'var(--acc)' }}>›</span>{d}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Factores de éxito</div>
+                      <ul style={{ listStyle:'none', padding:0, margin:0 }}>
+                        {p.succ.map((s,i) => <li key={i} style={{ fontSize:13, lineHeight:1.5, color:'#cfd5dd', paddingLeft:16, position:'relative', marginBottom:6 }}><span style={{ position:'absolute', left:0, color:'var(--warn)', fontSize:11 }}>◆</span>{s}</li>)}
+                      </ul>
+                    </div>
                   </div>
                 ))}
-                {/* Left rail */}
-                <div style={{ gridColumn:1, gridRow:'2 / 5', background:'var(--bg-3)', padding:'16px 14px', display:'flex', flexDirection:'column', gap:9 }}>
-                  {SIPOC_REQS.map((r, i) => (
-                    <div key={i} style={{ display:'flex', gap:9, alignItems:'flex-start' }}>
-                      <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', flexShrink:0, paddingTop:1 }}>{(i+1).toString().padStart(2,'0')}</span>
-                      <span style={{ fontSize:12, lineHeight:1.45, color:'var(--muted)' }}>{r}</span>
-                    </div>
-                  ))}
-                </div>
-                {/* Process rows */}
-                {SIPOC_DATA.map((sp, i) => [
-                  <div key={`in-${i}`} style={{ gridColumn:2, gridRow:i+2, background:'var(--bg-0)', padding:'16px 14px' }}>
-                    <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:6 }}>Insumo {i+1}</div>
-                    <p style={{ fontSize:12, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{sp.input}</p>
-                  </div>,
-                  <div key={`arr1-${i}`} style={{ gridColumn:3, gridRow:i+2, background:'var(--bg-0)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--acc)' }}>
-                    <ArrowRight size={14} strokeWidth={2} />
-                  </div>,
-                  <div key={`proc-${i}`} style={{ gridColumn:4, gridRow:i+2, background:'var(--acc-soft)', padding:'14px 12px', display:'flex', flexDirection:'column', gap:8 }}>
-                    <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', letterSpacing:'.1em', border:'1px solid var(--acc-dim)', padding:'2px 7px', borderRadius:50, alignSelf:'flex-start' }}>{sp.id}</span>
-                    <p style={{ fontSize:12, fontWeight:600, lineHeight:1.3, margin:0 }}>{sp.title}</p>
-                    <a href={sp.href} style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', textDecoration:'none', alignSelf:'flex-start' }}>Ver diagrama →</a>
-                  </div>,
-                  <div key={`arr2-${i}`} style={{ gridColumn:5, gridRow:i+2, background:'var(--bg-0)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--acc)' }}>
-                    <ArrowRight size={14} strokeWidth={2} />
-                  </div>,
-                  <div key={`out-${i}`} style={{ gridColumn:6, gridRow:i+2, background:'var(--bg-0)', padding:'16px 14px' }}>
-                    <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:6 }}>Salida {i+1}</div>
-                    <p style={{ fontSize:12, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{sp.output}</p>
-                  </div>,
-                ])}
-                {/* Right rail */}
-                <div style={{ gridColumn:7, gridRow:'2 / 5', background:'var(--bg-3)', padding:'16px 14px', display:'flex', flexDirection:'column', gap:9 }}>
-                  {SIPOC_CLIENTS.map((c, i) => (
-                    <div key={i} style={{ display:'flex', gap:9, alignItems:'flex-start' }}>
-                      <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', flexShrink:0, paddingTop:1 }}>{(i+1).toString().padStart(2,'0')}</span>
-                      <span style={{ fontSize:12, lineHeight:1.45, color:'var(--muted)' }}>{c}</span>
-                    </div>
-                  ))}
-                </div>
               </div>
-            </div>
-          </Reveal>
-        </div>
-
-        {/* 7.3 Diagramas por actor */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">7.3</span><h2>Diagramas de proceso por actor</h2><span className="rule" /></div></Reveal>
-          <Reveal className="doc-prose"><p>Cada diagrama muestra el flujo de actividades de un macroproceso organizado por actor (carril). Las tarjetas de <em>Decisión</em> indican bifurcaciones, como la asunción formal del riesgo en VM-PROC3.</p></Reveal>
-          <Reveal>
-            <div className="doc-callout" style={{ display:'flex', alignItems:'flex-start', gap:12, marginTop:10 }}>
-              <ExternalLink size={15} strokeWidth={2} style={{ color:'var(--acc)', flexShrink:0, marginTop:2 }} />
-              <p style={{ margin:0, fontSize:13, lineHeight:1.6 }}>
-                Para consultar la documentación completa de los procesos —incluyendo políticas, estándares y procedimientos de soporte—, puede acceder al{' '}
-                <a href="https://drive.google.com/file/d/1fovMrtjeQ-XXHi2gaY1yC8XeYNBpPmjp/view?usp=drive_link" target="_blank" rel="noopener noreferrer" style={{ color:'var(--acc)', textDecoration:'none', borderBottom:'1px solid var(--acc-dim)' }}>
-                  documento oficial de modelo de procesos
-                </a>
-                {' '}alojado en Google Drive.
-              </p>
-            </div>
-          </Reveal>
-          <div style={{ marginTop:18 }}>
-            {SWIM_DATA.map((proc) => (
-              <Reveal key={proc.id}>
-                <SwimBlock proc={proc} />
               </Reveal>
-            ))}
-          </div>
-        </div>
+            </section>
 
-        {/* 7.4 Catálogo */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">7.4</span><h2>Catálogo de activos de información</h2><span className="rule" /></div></Reveal>
-
-          <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:24 }}>
-            {[['09','Activos totales'],['07','Críticos'],['02','No críticos'],['03','Responsables']].map(([n,k]) => (
-              <div key={k} style={{ background:'var(--bg-0)', padding:'22px' }}>
-                <div style={{ fontSize:'clamp(32px,4vw,48px)', fontWeight:500, letterSpacing:'-.03em', lineHeight:1, color:'var(--acc)', fontFamily:'var(--font-sans)' }}>{n}</div>
-                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)', marginTop:8 }}>{k}</div>
-              </div>
-            ))}
-          </Reveal>
-
-          {PROCS.map((proc) => {
-            const items = ASSETS.filter((a) => a.proc === proc);
-            return (
-              <div key={proc}>
-                <Reveal style={{ display:'flex', alignItems:'center', gap:14, margin:'28px 0 14px', fontFamily:'var(--font-mono)', fontSize:12 }}>
-                  <span style={{ color:'var(--acc)', letterSpacing:'.08em' }}>{proc}</span>
-                  <span style={{ flex:1, height:1, background:'var(--line)' }} />
-                  <span style={{ color:'var(--muted)' }}>{items.length} activos</span>
-                </Reveal>
-                <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, marginBottom:8 }}>
-                  {items.map((a) => (
-                    <div key={a.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-0)', padding:20, display:'flex', flexDirection:'column', gap:11 }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
-                        <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)', fontWeight:600 }}>{a.id}</span>
-                        <span className={`doc-badge ${a.crit ? 'crit' : ''}`}><span className="dot" />{a.crit ? 'Crítico' : 'No crítico'}</span>
+            {/* 7.2 SIPOC */}
+            <section id="sipoc" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">7.2</span><h2>Modelo de procesos de nivel 1</h2><span className="rule" /></div></Reveal>
+              <Reveal className="doc-prose"><p>El modelo SIPOC (<em>Suppliers-Inputs-Process-Outputs-Customers</em>) describe, a alto nivel, los insumos y clientes de cada macroproceso del servicio. Los procesos enlazados dirigen a los diagramas de actividad por actor en la sección 7.3.</p></Reveal>
+              <Reveal>
+                <div style={{ overflowX:'auto', marginTop:18 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'200px 1fr 36px 180px 36px 1fr 200px', minWidth:960, border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', background:'var(--line)', gap:1 }}>
+                    {['Requerimientos del cliente','Insumos','','Procesos clave','','Salidas','Clientes'].map((label, i) => (
+                      <div key={`h-${i}`} style={{ gridColumn:i+1, gridRow:1, background:(i===0||i===6) ? 'var(--bg-3)' : 'var(--bg-2)', padding:'11px 14px', fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.12em', textTransform:'uppercase', color:'var(--acc)', display:'flex', alignItems:'center', justifyContent:(i===2||i===4) ? 'center' : undefined }}>
+                        {label}
                       </div>
-                      <div style={{ fontSize:15, fontWeight:600, lineHeight:1.25 }}>{a.name}</div>
-                      <p style={{ fontSize:13, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{a.desc}</p>
-                      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
-                        {a.rel.length ? a.rel.map(r => <span key={r} style={{ fontFamily:'var(--font-mono)', fontSize:10.5, padding:'3px 8px', border:'1px solid var(--line-2)', borderRadius:4, color:'var(--muted)' }}>→ {r}</span>) : <span style={{ fontFamily:'var(--font-mono)', fontSize:10.5, color:'var(--muted-2)' }}>sin relación</span>}
-                      </div>
-                      <div style={{ fontSize:12, color:'var(--muted-2)', fontFamily:'var(--font-mono)', display:'flex', alignItems:'center', gap:7, paddingTop:10, borderTop:'1px solid var(--line)' }}>
-                        <span style={{ width:20, height:20, borderRadius:'50%', background:'var(--bg-3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'var(--acc)', flexShrink:0 }}>{initials(a.resp)}</span>
-                        {a.resp}
-                      </div>
+                    ))}
+                    <div style={{ gridColumn:1, gridRow:'2 / 5', background:'var(--bg-3)', padding:'16px 14px', display:'flex', flexDirection:'column', gap:9 }}>
+                      {SIPOC_REQS.map((r, i) => (
+                        <div key={i} style={{ display:'flex', gap:9, alignItems:'flex-start' }}>
+                          <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', flexShrink:0, paddingTop:1 }}>{(i+1).toString().padStart(2,'0')}</span>
+                          <span style={{ fontSize:12, lineHeight:1.45, color:'var(--muted)' }}>{r}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </Reveal>
-              </div>
-            );
-          })}
-        </div>
+                    {SIPOC_DATA.map((sp, i) => [
+                      <div key={`in-${i}`} style={{ gridColumn:2, gridRow:i+2, background:'var(--bg-0)', padding:'16px 14px' }}>
+                        <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:6 }}>Insumo {i+1}</div>
+                        <p style={{ fontSize:12, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{sp.input}</p>
+                      </div>,
+                      <div key={`arr1-${i}`} style={{ gridColumn:3, gridRow:i+2, background:'var(--bg-0)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--acc)' }}>
+                        <ArrowRight size={14} strokeWidth={2} />
+                      </div>,
+                      <div key={`proc-${i}`} style={{ gridColumn:4, gridRow:i+2, background:'var(--acc-soft)', padding:'14px 12px', display:'flex', flexDirection:'column', gap:8 }}>
+                        <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', letterSpacing:'.1em', border:'1px solid var(--acc-dim)', padding:'2px 7px', borderRadius:50, alignSelf:'flex-start' }}>{sp.id}</span>
+                        <p style={{ fontSize:12, fontWeight:600, lineHeight:1.3, margin:0 }}>{sp.title}</p>
+                        <a href={sp.href} style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', textDecoration:'none', alignSelf:'flex-start' }}>Ver diagrama →</a>
+                      </div>,
+                      <div key={`arr2-${i}`} style={{ gridColumn:5, gridRow:i+2, background:'var(--bg-0)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--acc)' }}>
+                        <ArrowRight size={14} strokeWidth={2} />
+                      </div>,
+                      <div key={`out-${i}`} style={{ gridColumn:6, gridRow:i+2, background:'var(--bg-0)', padding:'16px 14px' }}>
+                        <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:6 }}>Salida {i+1}</div>
+                        <p style={{ fontSize:12, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{sp.output}</p>
+                      </div>,
+                    ])}
+                    <div style={{ gridColumn:7, gridRow:'2 / 5', background:'var(--bg-3)', padding:'16px 14px', display:'flex', flexDirection:'column', gap:9 }}>
+                      {SIPOC_CLIENTS.map((c, i) => (
+                        <div key={i} style={{ display:'flex', gap:9, alignItems:'flex-start' }}>
+                          <span style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--acc)', flexShrink:0, paddingTop:1 }}>{(i+1).toString().padStart(2,'0')}</span>
+                          <span style={{ fontSize:12, lineHeight:1.45, color:'var(--muted)' }}>{c}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            </section>
 
+            {/* 7.3 Diagramas por actor */}
+            <section id="diagramas" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">7.3</span><h2>Diagramas de proceso por actor</h2><span className="rule" /></div></Reveal>
+              <Reveal className="doc-prose"><p>Cada diagrama muestra el flujo de actividades de un macroproceso organizado por actor (carril). Las tarjetas de <em>Decisión</em> indican bifurcaciones, como la asunción formal del riesgo en VM-PROC3.</p></Reveal>
+              <Reveal>
+                <div className="doc-callout" style={{ display:'flex', alignItems:'flex-start', gap:12, marginTop:10 }}>
+                  <ExternalLink size={15} strokeWidth={2} style={{ color:'var(--acc)', flexShrink:0, marginTop:2 }} />
+                  <p style={{ margin:0, fontSize:13, lineHeight:1.6 }}>
+                    Para consultar la documentación completa de los procesos —incluyendo políticas, estándares y procedimientos de soporte—, puede acceder al{' '}
+                    <a href="https://drive.google.com/file/d/1fovMrtjeQ-XXHi2gaY1yC8XeYNBpPmjp/view?usp=drive_link" target="_blank" rel="noopener noreferrer" style={{ color:'var(--acc)', textDecoration:'none', borderBottom:'1px solid var(--acc-dim)' }}>
+                      documento oficial de modelo de procesos
+                    </a>
+                    {' '}alojado en Google Drive.
+                  </p>
+                </div>
+              </Reveal>
+              <div style={{ marginTop:18 }}>
+                {SWIM_DATA.map((proc) => (
+                  <Reveal key={proc.id}>
+                    <SwimBlock proc={proc} />
+                  </Reveal>
+                ))}
+              </div>
+            </section>
+
+            {/* 7.4 Catálogo */}
+            <section id="catalogo" style={{ scrollMarginTop:16 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">7.4</span><h2>Catálogo de activos de información</h2><span className="rule" /></div></Reveal>
+
+              <Reveal style={{ overflowX:'auto', marginBottom:24 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', minWidth:480 }}>
+                {[['09','Activos totales'],['07','Críticos'],['02','No críticos'],['03','Responsables']].map(([n,k]) => (
+                  <div key={k} style={{ background:'var(--bg-0)', padding:'22px' }}>
+                    <div style={{ fontSize:'clamp(32px,4vw,48px)', fontWeight:500, letterSpacing:'-.03em', lineHeight:1, color:'var(--acc)', fontFamily:'var(--font-sans)' }}>{n}</div>
+                    <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)', marginTop:8 }}>{k}</div>
+                  </div>
+                ))}
+              </div>
+              </Reveal>
+
+              {PROCS.map((proc) => {
+                const items = ASSETS.filter((a) => a.proc === proc);
+                return (
+                  <div key={proc}>
+                    <Reveal style={{ display:'flex', alignItems:'center', gap:14, margin:'28px 0 14px', fontFamily:'var(--font-mono)', fontSize:12 }}>
+                      <span style={{ color:'var(--acc)', letterSpacing:'.08em' }}>{proc}</span>
+                      <span style={{ flex:1, height:1, background:'var(--line)' }} />
+                      <span style={{ color:'var(--muted)' }}>{items.length} activos</span>
+                    </Reveal>
+                    <Reveal style={{ overflowX:'auto', marginBottom:8 }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14, minWidth:600 }}>
+                      {items.map((a) => (
+                        <div key={a.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-0)', padding:20, display:'flex', flexDirection:'column', gap:11 }}>
+                          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:10 }}>
+                            <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)', fontWeight:600 }}>{a.id}</span>
+                            <span className={`doc-badge ${a.crit ? 'crit' : ''}`}><span className="dot" />{a.crit ? 'Crítico' : 'No crítico'}</span>
+                          </div>
+                          <div style={{ fontSize:15, fontWeight:600, lineHeight:1.25 }}>{a.name}</div>
+                          <p style={{ fontSize:13, lineHeight:1.55, color:'var(--muted)', margin:0 }}>{a.desc}</p>
+                          <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+                            {a.rel.length ? a.rel.map(r => <span key={r} style={{ fontFamily:'var(--font-mono)', fontSize:10.5, padding:'3px 8px', border:'1px solid var(--line-2)', borderRadius:4, color:'var(--muted)' }}>→ {r}</span>) : <span style={{ fontFamily:'var(--font-mono)', fontSize:10.5, color:'var(--muted-2)' }}>sin relación</span>}
+                          </div>
+                          <div style={{ fontSize:12, color:'var(--muted-2)', fontFamily:'var(--font-mono)', display:'flex', alignItems:'center', gap:7, paddingTop:10, borderTop:'1px solid var(--line)' }}>
+                            <span style={{ width:20, height:20, borderRadius:'50%', background:'var(--bg-3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'var(--acc)', flexShrink:0 }}>{initials(a.resp)}</span>
+                            {a.resp}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    </Reveal>
+                  </div>
+                );
+              })}
+            </section>
+
+          </main>
+        </div>
       </div>
 
       <div className="doc-foot">

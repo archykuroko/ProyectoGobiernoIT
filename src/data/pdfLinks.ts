@@ -10,6 +10,6 @@ export const PDF_LINKS: Record<string, string> = {
   'IA-07':  'https://drive.google.com/uc?export=download&id=1kbPzapndrz94b9A0HAbJQ4eXs52OyWfV',
   'MR-08':  'https://docs.google.com/spreadsheets/d/1akwf2YY0Dl5zdZlYNqWqMntD4BIe8SOs/edit?usp=sharing&ouid=104063987169185866082&rtpof=true&sd=true',
   'BO-10':  'https://drive.google.com/uc?export=download&id=1OMuTPDbtO7EKZiLeXCsBf373BaVpDJkx',
-  // 'BT-09': '/docs/BIA%20Tactico.pdf',
+  'BT-09':  'https://drive.google.com/uc?export=download&id=1yHkXnF0mkcvbHty3Oqg9b5sgHYJ-UJ9n',
   'PC-11': 'https://drive.google.com/uc?export=download&id=1PyaJ19nX4H6heF9aZRzRl1XSszFzx7BM',
 };

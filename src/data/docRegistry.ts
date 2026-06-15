@@ -11,7 +11,7 @@ export const DOC_REGISTRY: Record<string, LazyExoticComponent<ComponentType>> = 
   'CS-06':  lazy(() => import('../pages/docs/CedulaServicio')),
   'IA-07':  lazy(() => import('../pages/docs/InventarioActivos')),
   'MR-08':  lazy(() => import('../pages/docs/MatrizRiesgos')),
-  'BT-09':  lazy(() => import('../pages/docs/DocPending')),
+  'BT-09':  lazy(() => import('../pages/docs/BIATactico')),
   'BO-10':  lazy(() => import('../pages/docs/BIAOperacional')),
   'PC-11':  lazy(() => import('../pages/docs/PlanContinuidad')),
 };

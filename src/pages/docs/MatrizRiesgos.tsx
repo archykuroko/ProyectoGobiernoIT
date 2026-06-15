@@ -1,5 +1,28 @@
+import { useState, useEffect, useRef } from 'react';
 import { Info, ShieldAlert, ArrowRight } from 'lucide-react';
 import { Reveal } from '../../components/DocContent/Reveal';
+
+const TOC = [
+  { href: '#cid',              label: 'Matriz CID' },
+  { href: '#vm-proc1',         label: '· VM-PROC1 · Escaneo' },
+  { href: '#vm-proc2',         label: '· VM-PROC2 · Análisis' },
+  { href: '#vm-proc3',         label: '· VM-PROC3 · Remediación' },
+  { href: '#vulnerabilidades', label: 'Análisis de vulnerabilidades' },
+  { href: '#infraestructura',  label: 'Infraestructura crítica' },
+];
+
+function useTocActive(ids: string[]) {
+  const [active, setActive] = useState(ids[0] || '');
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => { entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }); },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [ids]);
+  return active;
+}
 
 interface CIDItem {
   proc: string; id: string; name: string;
@@ -141,6 +164,16 @@ function GroupTag({ left, right, count }: { left: string; right?: string; count:
 }
 
 export default function MatrizRiesgos() {
+  const ids = TOC.map(t => t.href.slice(1));
+  const active = useTocActive(ids);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollTo = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <>
       <div className="dochero">
@@ -157,259 +190,289 @@ export default function MatrizRiesgos() {
         </div>
       </div>
 
-      <div className="doc-wrap">
+      <div className="doc-wrap" style={{ paddingTop:56, paddingBottom:56 }} ref={scrollRef}>
+        <div className="doc-withtoc">
 
-        {/* ── 8.1 Matriz CID ── */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">8.1</span><h2>Matriz CID</h2><span className="rule" /></div></Reveal>
-
-          <Reveal>
-            <div className="doc-prose" style={{ marginBottom:30 }}>
-              <p className="dim">Cada activo de información se valora sobre la tríada <strong>Confidencialidad · Integridad · Disponibilidad</strong> (escala 1–5). La suma determina el nivel de criticidad del activo y enmarca el binomio vulnerabilidad–amenaza que origina cada evento de riesgo, junto con el control propuesto para mitigarlo.</p>
-            </div>
-          </Reveal>
-
-          {/* Summary strip */}
-          <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginBottom:36 }}>
-            {([['09','','Activos valorados'],['06','danger','Nivel alto'],['03','warn','Nivel medio'],['14','','Valoración máxima']] as [string,string,string][]).map(([n,c,k]) => (
-              <div key={k} style={{ background:'var(--bg-0)', padding:24 }}>
-                <div style={{ fontSize:38, fontWeight:500, letterSpacing:'-.03em', lineHeight:1, color: c==='danger'?'var(--danger)':c==='warn'?'var(--warn)':'var(--acc)', fontFamily:'var(--font-sans)' }}>{n}</div>
-                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)', marginTop:8 }}>{k}</div>
-              </div>
+          {/* TOC */}
+          <nav className="doc-toc">
+            <div className="tl">Contenido</div>
+            {TOC.map(t => (
+              <a
+                key={t.href}
+                href={t.href}
+                className={active === t.href.slice(1) ? 'active' : ''}
+                onClick={(e) => scrollTo(t.href.slice(1), e)}
+                style={t.href.startsWith('#vm-proc') ? { paddingLeft:24, fontSize:11, opacity: active === t.href.slice(1) ? 1 : 0.7 } : undefined}
+              >
+                {t.label}
+              </a>
             ))}
-          </Reveal>
+          </nav>
 
-          {/* CID table */}
-          <Reveal>
-            <GroupTag left="VALORACIÓN CID" right="Tríada Confidencialidad · Integridad · Disponibilidad" count="" />
-            <div style={{ overflowX:'auto' }}>
-              <table className="doc-tbl" style={{ minWidth:560 }}>
-                <thead>
-                  <tr>
-                    <th>Activo</th>
-                    <th className="center">C</th>
-                    <th className="center">I</th>
-                    <th className="center">D</th>
-                    <th className="center">Total</th>
-                    <th>Nivel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {CID.map((a) => {
-                    const total = a.c + a.i + a.d;
-                    const n = nivel(total);
-                    return (
-                      <tr key={a.id}>
-                        <td><span className="em">{a.name}</span><br /><span className="mono">{a.id}</span></td>
-                        <td className="center"><CIABar value={a.c} /></td>
-                        <td className="center"><CIABar value={a.i} /></td>
-                        <td className="center"><CIABar value={a.d} /></td>
-                        <td className="center"><span style={{ fontFamily:'var(--font-sans)', fontSize:18, fontWeight:600 }}>{total}</span></td>
-                        <td><span className={`doc-badge ${n.cls}`}><span className="dot" />{n.label}</span></td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
+          {/* Content */}
+          <main style={{ minWidth:0 }}>
 
-          {/* Risk flow cards */}
-          <GroupTag left="VULNERABILIDAD → AMENAZA → RIESGO → CONTROL" count="9 escenarios de riesgo" />
-          {PROCS.map((proc) => {
-            const items = CID.filter((a) => a.proc === proc);
-            return (
-              <div key={proc}>
-                <GroupTag left={proc} count={`${items.length} escenario${items.length !== 1 ? 's' : ''}`} />
-                {items.map((a) => {
-                  const total = a.c + a.i + a.d;
-                  const n = nivel(total);
-                  const steps = [
-                    { label:'Vulnerabilidad',   text:a.vuln, color:'var(--warn)' },
-                    { label:'Amenaza',          text:a.amen, color:'var(--danger)' },
-                    { label:'Evento de riesgo', text:a.risk, color:'oklch(0.74 0.13 230)' },
-                    { label:'Control',          text:a.ctrl, color:'var(--acc)' },
-                  ];
-                  return (
-                    <Reveal key={a.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', overflow:'hidden', marginBottom:14 }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:14, padding:'18px 24px', borderBottom:'1px solid var(--line)', background:'var(--bg-0)', flexWrap:'wrap' }}>
-                        <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)', fontWeight:600 }}>{a.id}</span>
-                        <span style={{ fontSize:17, fontWeight:600, lineHeight:1.2, flex:1, minWidth:180 }}>{a.name}</span>
-                        <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)' }}>CID <strong style={{ color:'var(--text)', fontSize:14 }}>{total}</strong></span>
-                        <span className={`doc-badge ${n.cls}`}><span className="dot" />{n.label}</span>
-                      </div>
-                      <div style={{ overflowX:'auto' }}>
-                        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,minmax(170px,1fr))', gap:1, background:'var(--line)', minWidth:580 }}>
-                          {steps.map((step, si) => (
-                            <div key={si} style={{ background:'var(--bg-2)', padding:'18px 20px', position:'relative' }}>
-                              <div style={{ display:'flex', alignItems:'center', gap:8, fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:step.color, marginBottom:10 }}>
-                                <span style={{ width:18, height:18, borderRadius:'50%', border:'1px solid var(--line-2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'var(--acc)', flexShrink:0 }}>{si+1}</span>
-                                {step.label}
-                              </div>
-                              <p style={{ margin:0, fontSize:13, lineHeight:1.55, color:'#cfd5dd' }}>{step.text}</p>
-                              {si < 3 && (
-                                <span style={{ position:'absolute', right:-7, top:24, zIndex:3, color:'var(--muted-2)', background:'var(--bg-1)', width:14, height:14, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50%' }}>
-                                  <ArrowRight size={10} strokeWidth={2} />
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </Reveal>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+            {/* 8.1 Matriz CID */}
+            <section id="cid" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">8.1</span><h2>Matriz CID</h2><span className="rule" /></div></Reveal>
 
-        {/* ── 8.2 Análisis de vulnerabilidades ── */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">8.2</span><h2>Análisis de vulnerabilidades</h2><span className="rule" /></div></Reveal>
-
-          <Reveal>
-            <div className="doc-prose" style={{ marginBottom:28 }}>
-              <p className="dim">Análisis cuantitativo de las tres vulnerabilidades prioritarias. Cada una se descompone en su componente de <strong>vulnerabilidad</strong> (severidad × exposición) y de <strong>amenaza</strong> (capacidad de actuar × motivación de explotación). El riesgo residual con control se calcula como <strong>Amenaza × Probabilidad × Impacto</strong>.</p>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="doc-callout" style={{ marginBottom:28 }}>
-              <Info size={18} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0 }} />
-              <p>El <strong>riesgo total</strong> ordena la prioridad de tratamiento: a mayor producto, mayor exposición de la organización. El escenario de <em>zero-day sobre los escáneres</em> encabeza la lista con <strong>360</strong>, seguido del de <em>IAM permisivo en la nube</em> con <strong>144</strong>.</p>
-            </div>
-          </Reveal>
-
-          <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginTop:24 }}>
-            {VULN.map((v) => (
-              <div key={v.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'26px 24px', display:'flex', flexDirection:'column', gap:20, position:'relative', overflow:'hidden' }}>
-                <span style={{ position:'absolute', inset:'0 0 auto 0', height:3, background:LEVEL_COLOR[v.level] }} />
-                <div>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted-2)' }}>
-                    {v.tag} · <span style={{ color:'var(--acc)' }}>{v.id}</span>
-                  </div>
-                  <h3 style={{ fontSize:16, fontWeight:600, lineHeight:1.3, margin:'8px 0 0' }}>{v.name}</h3>
+              <Reveal>
+                <div className="doc-prose" style={{ marginBottom:30 }}>
+                  <p className="dim">Cada activo de información se valora sobre la tríada <strong>Confidencialidad · Integridad · Disponibilidad</strong> (escala 1–5). La suma determina el nivel de criticidad del activo y enmarca el binomio vulnerabilidad–amenaza que origina cada evento de riesgo, junto con el control propuesto para mitigarlo.</p>
                 </div>
+              </Reveal>
 
-                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                  {[
-                    { title:'Vulnerabilidad', val:v.vval, metrics:[['Severidad',v.sev],['Exposición',v.exp]] as [string,number][] },
-                    { title:'Amenaza',        val:v.tval, metrics:[['Capacidad',v.cap],['Motivación',v.mot]] as [string,number][] },
-                  ].map((blk) => (
-                    <div key={blk.title}>
-                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted)', marginBottom:9, display:'flex', alignItems:'center', gap:7 }}>
-                        {blk.title} <span style={{ flex:1, height:1, background:'var(--line)' }} /> {blk.val}
+              {/* Summary strip */}
+              <Reveal style={{ overflowX:'auto', marginBottom:36 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', minWidth:480 }}>
+                  {([['09','','Activos valorados'],['06','danger','Nivel alto'],['03','warn','Nivel medio'],['14','','Valoración máxima']] as [string,string,string][]).map(([n,c,k]) => (
+                    <div key={k} style={{ background:'var(--bg-0)', padding:24 }}>
+                      <div style={{ fontSize:38, fontWeight:500, letterSpacing:'-.03em', lineHeight:1, color: c==='danger'?'var(--danger)':c==='warn'?'var(--warn)':'var(--acc)', fontFamily:'var(--font-sans)' }}>{n}</div>
+                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)', marginTop:8 }}>{k}</div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+
+              {/* CID table */}
+              <Reveal>
+                <GroupTag left="VALORACIÓN CID" right="Tríada Confidencialidad · Integridad · Disponibilidad" count="" />
+                <div style={{ overflowX:'auto' }}>
+                  <table className="doc-tbl" style={{ minWidth:560 }}>
+                    <thead>
+                      <tr>
+                        <th>Activo</th>
+                        <th className="center">C</th>
+                        <th className="center">I</th>
+                        <th className="center">D</th>
+                        <th className="center">Total</th>
+                        <th>Nivel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {CID.map((a) => {
+                        const total = a.c + a.i + a.d;
+                        const n = nivel(total);
+                        return (
+                          <tr key={a.id}>
+                            <td><span className="em">{a.name}</span><br /><span className="mono">{a.id}</span></td>
+                            <td className="center"><CIABar value={a.c} /></td>
+                            <td className="center"><CIABar value={a.i} /></td>
+                            <td className="center"><CIABar value={a.d} /></td>
+                            <td className="center"><span style={{ fontFamily:'var(--font-sans)', fontSize:18, fontWeight:600 }}>{total}</span></td>
+                            <td><span className={`doc-badge ${n.cls}`}><span className="dot" />{n.label}</span></td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Reveal>
+
+              {/* Risk flow cards */}
+              <GroupTag left="VULNERABILIDAD → AMENAZA → RIESGO → CONTROL" count="9 escenarios de riesgo" />
+              {PROCS.map((proc) => {
+                const items = CID.filter((a) => a.proc === proc);
+                return (
+                  <div key={proc} id={proc.toLowerCase()} style={{ scrollMarginTop:16 }}>
+                    <GroupTag left={proc} count={`${items.length} escenario${items.length !== 1 ? 's' : ''}`} />
+                    {items.map((a) => {
+                      const total = a.c + a.i + a.d;
+                      const n = nivel(total);
+                      const steps = [
+                        { label:'Vulnerabilidad',   text:a.vuln, color:'var(--warn)' },
+                        { label:'Amenaza',          text:a.amen, color:'var(--danger)' },
+                        { label:'Evento de riesgo', text:a.risk, color:'oklch(0.74 0.13 230)' },
+                        { label:'Control',          text:a.ctrl, color:'var(--acc)' },
+                      ];
+                      return (
+                        <Reveal key={a.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', overflow:'hidden', marginBottom:14 }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:14, padding:'18px 24px', borderBottom:'1px solid var(--line)', background:'var(--bg-0)', flexWrap:'wrap' }}>
+                            <span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'var(--acc)', fontWeight:600 }}>{a.id}</span>
+                            <span style={{ fontSize:17, fontWeight:600, lineHeight:1.2, flex:1, minWidth:180 }}>{a.name}</span>
+                            <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--muted)' }}>CID <strong style={{ color:'var(--text)', fontSize:14 }}>{total}</strong></span>
+                            <span className={`doc-badge ${n.cls}`}><span className="dot" />{n.label}</span>
+                          </div>
+                          <div style={{ overflowX:'auto' }}>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(4,minmax(170px,1fr))', gap:1, background:'var(--line)', minWidth:580 }}>
+                              {steps.map((step, si) => (
+                                <div key={si} style={{ background:'var(--bg-2)', padding:'18px 20px', position:'relative' }}>
+                                  <div style={{ display:'flex', alignItems:'center', gap:8, fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:step.color, marginBottom:10 }}>
+                                    <span style={{ width:18, height:18, borderRadius:'50%', border:'1px solid var(--line-2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'var(--acc)', flexShrink:0 }}>{si+1}</span>
+                                    {step.label}
+                                  </div>
+                                  <p style={{ margin:0, fontSize:13, lineHeight:1.55, color:'#cfd5dd' }}>{step.text}</p>
+                                  {si < 3 && (
+                                    <span style={{ position:'absolute', right:-7, top:24, zIndex:3, color:'var(--muted-2)', background:'var(--bg-1)', width:14, height:14, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50%' }}>
+                                      <ArrowRight size={10} strokeWidth={2} />
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </Reveal>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </section>
+
+            {/* 8.2 Análisis de vulnerabilidades */}
+            <section id="vulnerabilidades" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">8.2</span><h2>Análisis de vulnerabilidades</h2><span className="rule" /></div></Reveal>
+
+              <Reveal>
+                <div className="doc-prose" style={{ marginBottom:28 }}>
+                  <p className="dim">Análisis cuantitativo de las tres vulnerabilidades prioritarias. Cada una se descompone en su componente de <strong>vulnerabilidad</strong> (severidad × exposición) y de <strong>amenaza</strong> (capacidad de actuar × motivación de explotación). El riesgo residual con control se calcula como <strong>Amenaza × Probabilidad × Impacto</strong>.</p>
+                </div>
+              </Reveal>
+
+              <Reveal>
+                <div className="doc-callout" style={{ marginBottom:28 }}>
+                  <Info size={18} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0 }} />
+                  <p>El <strong>riesgo total</strong> ordena la prioridad de tratamiento: a mayor producto, mayor exposición de la organización. El escenario de <em>zero-day sobre los escáneres</em> encabeza la lista con <strong>360</strong>, seguido del de <em>IAM permisivo en la nube</em> con <strong>144</strong>.</p>
+                </div>
+              </Reveal>
+
+              <Reveal style={{ overflowX:'auto' }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginTop:24, minWidth:600 }}>
+                  {VULN.map((v) => (
+                    <div key={v.id} style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'26px 24px', display:'flex', flexDirection:'column', gap:20, position:'relative', overflow:'hidden' }}>
+                      <span style={{ position:'absolute', inset:'0 0 auto 0', height:3, background:LEVEL_COLOR[v.level] }} />
+                      <div>
+                        <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted-2)' }}>
+                          {v.tag} · <span style={{ color:'var(--acc)' }}>{v.id}</span>
+                        </div>
+                        <h3 style={{ fontSize:16, fontWeight:600, lineHeight:1.3, margin:'8px 0 0' }}>{v.name}</h3>
                       </div>
-                      <div style={{ display:'flex', gap:10 }}>
-                        {blk.metrics.map(([mk, mv]) => (
-                          <div key={mk} style={{ flex:1, background:'var(--bg-0)', border:'1px solid var(--line)', borderRadius:4, padding:'11px 12px' }}>
-                            <div style={{ fontFamily:'var(--font-mono)', fontSize:9.5, letterSpacing:'.06em', textTransform:'uppercase', color:'var(--muted-2)', lineHeight:1.3 }}>{mk}</div>
-                            <div style={{ fontFamily:'var(--font-sans)', fontSize:24, fontWeight:600, lineHeight:1, marginTop:6 }}>{mv}</div>
+
+                      <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                        {[
+                          { title:'Vulnerabilidad', val:v.vval, metrics:[['Severidad',v.sev],['Exposición',v.exp]] as [string,number][] },
+                          { title:'Amenaza',        val:v.tval, metrics:[['Capacidad',v.cap],['Motivación',v.mot]] as [string,number][] },
+                        ].map((blk) => (
+                          <div key={blk.title}>
+                            <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.08em', textTransform:'uppercase', color:'var(--muted)', marginBottom:9, display:'flex', alignItems:'center', gap:7 }}>
+                              {blk.title} <span style={{ flex:1, height:1, background:'var(--line)' }} /> {blk.val}
+                            </div>
+                            <div style={{ display:'flex', gap:10 }}>
+                              {blk.metrics.map(([mk, mv]) => (
+                                <div key={mk} style={{ flex:1, background:'var(--bg-0)', border:'1px solid var(--line)', borderRadius:4, padding:'11px 12px' }}>
+                                  <div style={{ fontFamily:'var(--font-mono)', fontSize:9.5, letterSpacing:'.06em', textTransform:'uppercase', color:'var(--muted-2)', lineHeight:1.3 }}>{mk}</div>
+                                  <div style={{ fontFamily:'var(--font-sans)', fontSize:24, fontWeight:600, lineHeight:1, marginTop:6 }}>{mv}</div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         ))}
+                      </div>
+
+                      <div style={{ marginTop:'auto', borderTop:'1px solid var(--line)', paddingTop:18 }}>
+                        <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.06em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:10 }}>Riesgo con control</div>
+                        <div style={{ fontFamily:'var(--font-mono)', fontSize:12, color:'var(--muted)', lineHeight:1.6 }}>
+                          Amenaza <strong style={{ color:'var(--text)' }}>{v.amenaza}</strong> × Probabilidad <strong style={{ color:'var(--text)' }}>{v.prob}</strong> × Impacto <strong style={{ color:'var(--text)' }}>{v.impacto}</strong>
+                        </div>
+                        <div style={{ display:'flex', alignItems:'baseline', gap:10, marginTop:12 }}>
+                          <span style={{ fontFamily:'var(--font-sans)', fontSize:40, fontWeight:600, letterSpacing:'-.03em', lineHeight:1, color:LEVEL_COLOR[v.level] }}>{v.total}</span>
+                          <span style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)' }}>{LEVEL_LABEL[v.level]}</span>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
+              </Reveal>
+            </section>
 
-                <div style={{ marginTop:'auto', borderTop:'1px solid var(--line)', paddingTop:18 }}>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.06em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:10 }}>Riesgo con control</div>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:12, color:'var(--muted)', lineHeight:1.6 }}>
-                    Amenaza <strong style={{ color:'var(--text)' }}>{v.amenaza}</strong> × Probabilidad <strong style={{ color:'var(--text)' }}>{v.prob}</strong> × Impacto <strong style={{ color:'var(--text)' }}>{v.impacto}</strong>
-                  </div>
-                  <div style={{ display:'flex', alignItems:'baseline', gap:10, marginTop:12 }}>
-                    <span style={{ fontFamily:'var(--font-sans)', fontSize:40, fontWeight:600, letterSpacing:'-.03em', lineHeight:1, color:LEVEL_COLOR[v.level] }}>{v.total}</span>
-                    <span style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted)' }}>{LEVEL_LABEL[v.level]}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </Reveal>
-        </div>
+            {/* 8.3 Infraestructura crítica */}
+            <section id="infraestructura" style={{ scrollMarginTop:16 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">8.3</span><h2>Matriz de infraestructura crítica</h2><span className="rule" /></div></Reveal>
 
-        {/* ── 8.3 Infraestructura crítica ── */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">8.3</span><h2>Matriz de infraestructura crítica</h2><span className="rule" /></div></Reveal>
-
-          <Reveal>
-            <div className="doc-prose" style={{ marginBottom:28 }}>
-              <p className="dim">Identificación de las infraestructuras críticas según su <strong>área geográfica</strong>, <strong>periodo de afectación</strong>, <strong>impacto</strong>, número de infraestructuras afectadas, campos comprometidos e <strong>interdependencia</strong>. El grado de criticidad resultante (I a IV) prioriza qué activos requieren controles reforzados.</p>
-            </div>
-          </Reveal>
-
-          <Reveal style={{ overflowX:'auto' }}>
-            <table className="doc-tbl" style={{ minWidth:680 }}>
-              <thead>
-                <tr>
-                  <th>Activo</th>
-                  <th className="center">Área geo.</th>
-                  <th className="center">Periodo</th>
-                  <th className="center">Impacto</th>
-                  <th className="center">Infra. afect.</th>
-                  <th className="center">Campos</th>
-                  <th className="center">Interdep.</th>
-                  <th className="center">Criticidad</th>
-                </tr>
-              </thead>
-              <tbody>
-                {INFRA.map((a) => (
-                  <tr key={a.id}>
-                    <td><span className="em">{a.name}</span><br /><span className="mono">{a.id}</span></td>
-                    {[a.geo, a.per, a.imp, a.inf, a.cmp, a.dep].map((v, i) => (
-                      <td key={i} className="center"><span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'#cfd5dd' }}>{v}</span></td>
-                    ))}
-                    <td className="center">
-                      <span className={`doc-badge ${CRIT_CLS[a.crit]}`} style={{ justifyContent:'center', fontWeight:600, minWidth:34 }}>{a.crit}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Reveal>
-
-          {/* Legend */}
-          <Reveal style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', marginTop:18 }}>
-            {[
-              { title:'Área geográfica', rows:[['1','Una sola ubicación / nodo afectado'],['2','Más de una ubicación afectada'],['3','Todas las ubicaciones afectadas']] },
-              { title:'Periodo de afectación', rows:[['1','6 horas o menos'],['2','Menos de 24 horas'],['3','Más de 24 horas']] },
-              { title:'Infraestructuras afectadas', rows:[['1','Solo una afectada'],['2','Más de una afectada'],['3','Todas afectadas']] },
-            ].map((lg) => (
-              <div key={lg.title} style={{ background:'var(--bg-2)', padding:'20px 22px' }}>
-                <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--acc)', marginBottom:12 }}>{lg.title}</div>
-                <ul style={{ listStyle:'none', margin:0, padding:0 }}>
-                  {lg.rows.map(([k, v]) => (
-                    <li key={k} style={{ fontSize:12.5, lineHeight:1.5, color:'var(--muted)', paddingLeft:24, position:'relative', marginBottom:7 }}>
-                      <span style={{ position:'absolute', left:0, top:0, fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text)', fontWeight:600 }}>{k}</span>
-                      {v}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </Reveal>
-
-          {/* Critical infra cards */}
-          <GroupTag left="INFRAESTRUCTURAS CRÍTICAS DETECTADAS" count="5 activos · grado IV" />
-          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-            {CRIT.map((c) => (
-              <Reveal key={c.id} style={{ display:'grid', gridTemplateColumns:'240px 1fr', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', background:'var(--bg-2)' }}>
-                <div style={{ background:'var(--bg-0)', padding:'22px 24px', borderRight:'1px solid var(--line)', display:'flex', flexDirection:'column', gap:12, justifyContent:'center' }}>
-                  <span className="doc-badge crit" style={{ alignSelf:'flex-start', fontWeight:600 }}>IV</span>
-                  <span style={{ fontSize:16, fontWeight:600, lineHeight:1.25 }}>{c.name}</span>
-                </div>
-                <div style={{ padding:'22px 26px', display:'flex', gap:14, alignItems:'flex-start' }}>
-                  <ShieldAlert size={16} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0, marginTop:2 }} />
-                  <p style={{ margin:0, fontSize:14, lineHeight:1.65, color:'#cfd5dd' }}>
-                    <span style={{ display:'block', fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Control a implementar</span>
-                    {c.ctrl}
-                  </p>
+              <Reveal>
+                <div className="doc-prose" style={{ marginBottom:28 }}>
+                  <p className="dim">Identificación de las infraestructuras críticas según su <strong>área geográfica</strong>, <strong>periodo de afectación</strong>, <strong>impacto</strong>, número de infraestructuras afectadas, campos comprometidos e <strong>interdependencia</strong>. El grado de criticidad resultante (I a IV) prioriza qué activos requieren controles reforzados.</p>
                 </div>
               </Reveal>
-            ))}
-          </div>
-        </div>
 
+              <Reveal style={{ overflowX:'auto' }}>
+                <table className="doc-tbl" style={{ minWidth:680 }}>
+                  <thead>
+                    <tr>
+                      <th>Activo</th>
+                      <th className="center">Área geo.</th>
+                      <th className="center">Periodo</th>
+                      <th className="center">Impacto</th>
+                      <th className="center">Infra. afect.</th>
+                      <th className="center">Campos</th>
+                      <th className="center">Interdep.</th>
+                      <th className="center">Criticidad</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {INFRA.map((a) => (
+                      <tr key={a.id}>
+                        <td><span className="em">{a.name}</span><br /><span className="mono">{a.id}</span></td>
+                        {[a.geo, a.per, a.imp, a.inf, a.cmp, a.dep].map((v, i) => (
+                          <td key={i} className="center"><span style={{ fontFamily:'var(--font-mono)', fontSize:13, color:'#cfd5dd' }}>{v}</span></td>
+                        ))}
+                        <td className="center">
+                          <span className={`doc-badge ${CRIT_CLS[a.crit]}`} style={{ justifyContent:'center', fontWeight:600, minWidth:34 }}>{a.crit}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Reveal>
+
+              {/* Legend */}
+              <Reveal style={{ overflowX:'auto', marginTop:18 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', minWidth:480 }}>
+                  {[
+                    { title:'Área geográfica', rows:[['1','Una sola ubicación / nodo afectado'],['2','Más de una ubicación afectada'],['3','Todas las ubicaciones afectadas']] },
+                    { title:'Periodo de afectación', rows:[['1','6 horas o menos'],['2','Menos de 24 horas'],['3','Más de 24 horas']] },
+                    { title:'Infraestructuras afectadas', rows:[['1','Solo una afectada'],['2','Más de una afectada'],['3','Todas afectadas']] },
+                  ].map((lg) => (
+                    <div key={lg.title} style={{ background:'var(--bg-2)', padding:'20px 22px' }}>
+                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--acc)', marginBottom:12 }}>{lg.title}</div>
+                      <ul style={{ listStyle:'none', margin:0, padding:0 }}>
+                        {lg.rows.map(([k, v]) => (
+                          <li key={k} style={{ fontSize:12.5, lineHeight:1.5, color:'var(--muted)', paddingLeft:24, position:'relative', marginBottom:7 }}>
+                            <span style={{ position:'absolute', left:0, top:0, fontFamily:'var(--font-mono)', fontSize:11, color:'var(--text)', fontWeight:600 }}>{k}</span>
+                            {v}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+
+              {/* Critical infra cards */}
+              <GroupTag left="INFRAESTRUCTURAS CRÍTICAS DETECTADAS" count="5 activos · grado IV" />
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                {CRIT.map((c) => (
+                  <Reveal key={c.id} style={{ overflowX:'auto' }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'240px 1fr', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', background:'var(--bg-2)', minWidth:480 }}>
+                      <div style={{ background:'var(--bg-0)', padding:'22px 24px', borderRight:'1px solid var(--line)', display:'flex', flexDirection:'column', gap:12, justifyContent:'center' }}>
+                        <span className="doc-badge crit" style={{ alignSelf:'flex-start', fontWeight:600 }}>IV</span>
+                        <span style={{ fontSize:16, fontWeight:600, lineHeight:1.25 }}>{c.name}</span>
+                      </div>
+                      <div style={{ padding:'22px 26px', display:'flex', gap:14, alignItems:'flex-start' }}>
+                        <ShieldAlert size={16} strokeWidth={1.5} style={{ color:'var(--acc)', flexShrink:0, marginTop:2 }} />
+                        <p style={{ margin:0, fontSize:14, lineHeight:1.65, color:'#cfd5dd' }}>
+                          <span style={{ display:'block', fontFamily:'var(--font-mono)', fontSize:10, letterSpacing:'.1em', textTransform:'uppercase', color:'var(--muted-2)', marginBottom:8 }}>Control a implementar</span>
+                          {c.ctrl}
+                        </p>
+                      </div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </section>
+
+          </main>
+        </div>
       </div>
 
       <div className="doc-foot">

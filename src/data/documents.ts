@@ -105,10 +105,10 @@ export const DOCUMENTS: Document[] = [
     title: 'BIA Táctico',
     type: 'Gestión de riesgos',
     pages: 6,
-    date: '2026·04·05',
+    date: '2026·06·14',
     author: 'BCM Team',
     summary: 'Análisis de impacto al negocio en el plano táctico: procesos críticos, RTO y RPO objetivo.',
-    ready: false,
+    ready: true,
   },
   {
     id: 'BO-10',

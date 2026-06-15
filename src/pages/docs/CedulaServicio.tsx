@@ -1,4 +1,30 @@
+import { useState, useEffect, useRef } from 'react';
 import { Reveal } from '../../components/DocContent/Reveal';
+
+const TOC = [
+  { href: '#info',        label: 'Información general' },
+  { href: '#raci',        label: 'Matriz RACI' },
+  { href: '#directorio',  label: 'Directorio de responsables' },
+  { href: '#requisitos',  label: 'Condiciones y requisitos' },
+  { href: '#componentes', label: 'Componentes de infraestructura' },
+  { href: '#sla',         label: 'Niveles de servicio · SLA' },
+  { href: '#ola',         label: 'Acuerdos operativos · OLA' },
+];
+
+function useTocActive(ids: string[]) {
+  const [active, setActive] = useState(ids[0] || '');
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); });
+      },
+      { rootMargin: '-20% 0px -70% 0px' }
+    );
+    ids.forEach((id) => { const el = document.getElementById(id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
+  }, [ids]);
+  return active;
+}
 
 const ROLES = ['CISO', 'Analista', 'Ing. Infra', 'QA/Tester'];
 type RaciVal = 'A' | 'R' | 'C' | 'I' | '-';
@@ -22,7 +48,6 @@ const RACI: [string, RaciVal, RaciVal, RaciVal, RaciVal][] = [
   ['Seguimiento y escalamiento','A','R','C','I'],
   ['Validación de solución y cierre','A','C','I','R'],
 ];
-
 
 function RaciCell({ v }: { v: RaciVal }) {
   if (v === '-') return <span style={{ color:'var(--muted-2)', fontFamily:'var(--font-mono)' }}>·</span>;
@@ -70,6 +95,16 @@ const OLA_ROWS: [string, string, string][] = [
 ];
 
 export default function CedulaServicio() {
+  const ids = TOC.map(t => t.href.slice(1));
+  const active = useTocActive(ids);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scrollTo = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <>
       <div className="dochero">
@@ -86,159 +121,175 @@ export default function CedulaServicio() {
         </div>
       </div>
 
-      <div className="doc-wrap">
+      <div className="doc-wrap" style={{ paddingTop:56, paddingBottom:56 }} ref={scrollRef}>
+        <div className="doc-withtoc">
 
-        {/* 6.1 Información general */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.1</span><h2>Información general</h2><span className="rule" /></div></Reveal>
-          <Reveal>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden' }}>
-              {[
-                ['Nombre del servicio','Gestión de Vulnerabilidades',false,false],
-                ['Objetivo del servicio','Integrar de manera eficiente el escaneo de activos, el análisis de código y la revisión de infraestructura física y virtual.',false,false],
-                ['Variantes del alcance',['Infraestructura física y de red','Estaciones de trabajo','Entornos virtualizados','Código de aplicaciones'],true,false],
-                ['Subservicios ofrecidos',['Visibilidad y descubrimiento de activos','Priorización de riesgos','Gestión operativa de remediación','Integración de seguridad interna y externa'],true,false],
-                ['Descripción y alcance','Gestión integral y automatizada del ciclo de vida de las vulnerabilidades. La cobertura se extiende a infraestructura física de red y servidores, estaciones de trabajo, máquinas virtuales, configuraciones de seguridad en la nube y código fuente interno.',false,false],
-                ['Usuarios del servicio',['Desarrolladores','Ingenieros de TI','Analistas de ciberseguridad','Liderazgo'],true,false],
-              ].map(([k, v, isPills, isFullCol]) => (
-                <div key={k as string} style={{ background:'var(--bg-0)', padding:'18px 20px', gridColumn: (isFullCol || k==='Descripción y alcance' || k==='Subservicios ofrecidos' || k==='Variantes del alcance' || k==='Usuarios del servicio') ? '1 / -1' : undefined }}>
-                  <div style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--muted-2)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8 }}>{k as string}</div>
-                  {isPills ? (
-                    <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
-                      {(v as string[]).map((p) => <span key={p} style={{ fontFamily:'var(--font-mono)', fontSize:12, padding:'5px 10px', border:'1px solid var(--line-2)', borderRadius:50, color:'var(--muted)' }}>{p}</span>)}
+          {/* TOC */}
+          <nav className="doc-toc">
+            <div className="tl">Contenido</div>
+            {TOC.map(t => (
+              <a key={t.href} href={t.href} className={active === t.href.slice(1) ? 'active' : ''} onClick={(e) => scrollTo(t.href.slice(1), e)}>
+                {t.label}
+              </a>
+            ))}
+          </nav>
+
+          {/* Content */}
+          <main>
+
+            {/* 6.1 Información general */}
+            <section id="info" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.1</span><h2>Información general</h2><span className="rule" /></div></Reveal>
+              <Reveal>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                  {[
+                    ['Nombre del servicio','Gestión de Vulnerabilidades',false,false],
+                    ['Objetivo del servicio','Integrar de manera eficiente el escaneo de activos, el análisis de código y la revisión de infraestructura física y virtual.',false,false],
+                    ['Variantes del alcance',['Infraestructura física y de red','Estaciones de trabajo','Entornos virtualizados','Código de aplicaciones'],true,false],
+                    ['Subservicios ofrecidos',['Visibilidad y descubrimiento de activos','Priorización de riesgos','Gestión operativa de remediación','Integración de seguridad interna y externa'],true,false],
+                    ['Descripción y alcance','Gestión integral y automatizada del ciclo de vida de las vulnerabilidades. La cobertura se extiende a infraestructura física de red y servidores, estaciones de trabajo, máquinas virtuales, configuraciones de seguridad en la nube y código fuente interno.',false,false],
+                    ['Usuarios del servicio',['Desarrolladores','Ingenieros de TI','Analistas de ciberseguridad','Liderazgo'],true,false],
+                  ].map(([k, v, isPills, isFullCol]) => (
+                    <div key={k as string} style={{ background:'var(--bg-0)', padding:'18px 20px', gridColumn: (isFullCol || k==='Descripción y alcance' || k==='Subservicios ofrecidos' || k==='Variantes del alcance' || k==='Usuarios del servicio') ? '1 / -1' : undefined }}>
+                      <div style={{ fontFamily:'var(--font-mono)', fontSize:10, color:'var(--muted-2)', letterSpacing:'.12em', textTransform:'uppercase', marginBottom:8 }}>{k as string}</div>
+                      {isPills ? (
+                        <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
+                          {(v as string[]).map((p) => <span key={p} style={{ fontFamily:'var(--font-mono)', fontSize:12, padding:'5px 10px', border:'1px solid var(--line-2)', borderRadius:50, color:'var(--muted)' }}>{p}</span>)}
+                        </div>
+                      ) : (
+                        <div style={{ fontSize:14, lineHeight:1.6, color:'#d4d9e0' }}>{v as string}</div>
+                      )}
                     </div>
-                  ) : (
-                    <div style={{ fontSize:14, lineHeight:1.6, color:'#d4d9e0' }}>{v as string}</div>
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
+              </Reveal>
+            </section>
 
-        {/* 6.2 RACI */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.2</span><h2>Responsables del servicio · Matriz RACI</h2><span className="rule" /></div></Reveal>
-          <Reveal style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', overflowX:'auto' }}>
-            <table className="doc-tbl" style={{ minWidth:620 }}>
-              <thead>
-                <tr>
-                  <th style={{ width:'42%', textAlign:'left' }}>Actividad</th>
-                  {ROLES.map(r => <th key={r} className="center">{r}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {RACI.map(([act, ...vals]) => (
-                  <tr key={act}>
-                    <td style={{ fontSize:13 }}>{act}</td>
-                    {vals.map((v, i) => <td key={i} className="center"><RaciCell v={v as RaciVal} /></td>)}
-                  </tr>
+            {/* 6.2 RACI */}
+            <section id="raci" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.2</span><h2>Responsables del servicio · Matriz RACI</h2><span className="rule" /></div></Reveal>
+              <Reveal style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden', overflowX:'auto' }}>
+                <table className="doc-tbl" style={{ minWidth:620 }}>
+                  <thead>
+                    <tr>
+                      <th style={{ width:'42%', textAlign:'left' }}>Actividad</th>
+                      {ROLES.map(r => <th key={r} className="center">{r}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {RACI.map(([act, ...vals]) => (
+                      <tr key={act}>
+                        <td style={{ fontSize:13 }}>{act}</td>
+                        {vals.map((v, i) => <td key={i} className="center"><RaciCell v={v as RaciVal} /></td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Reveal>
+              <Reveal style={{ display:'flex', flexWrap:'wrap', gap:18, marginTop:18, fontFamily:'var(--font-mono)', fontSize:12, color:'var(--muted)' }}>
+                {(['A','R','C','I'] as const).map(v => (
+                  <div key={v} style={{ display:'flex', alignItems:'center', gap:9 }}>
+                    <RaciCell v={v} />
+                    {{ A:'Aprobador (Accountable)', R:'Responsable (Responsible)', C:'Consultado', I:'Informado' }[v]}
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </Reveal>
-          <Reveal style={{ display:'flex', flexWrap:'wrap', gap:18, marginTop:18, fontFamily:'var(--font-mono)', fontSize:12, color:'var(--muted)' }}>
-            {(['A','R','C','I'] as const).map(v => (
-              <div key={v} style={{ display:'flex', alignItems:'center', gap:9 }}>
-                <RaciCell v={v} />
-                {{ A:'Aprobador (Accountable)', R:'Responsable (Responsible)', C:'Consultado', I:'Informado' }[v]}
-              </div>
-            ))}
-          </Reveal>
-        </div>
+              </Reveal>
+            </section>
 
-        {/* 6.3 Directorio */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.3</span><h2>Directorio de responsables</h2><span className="rule" /></div></Reveal>
-          <Reveal>
-            <table className="doc-tbl">
-              <thead><tr><th>Rol</th><th>Nombre</th><th>Correo</th><th className="center">Extensión</th><th className="center">Horario</th></tr></thead>
-              <tbody>
+            {/* 6.3 Directorio */}
+            <section id="directorio" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.3</span><h2>Directorio de responsables</h2><span className="rule" /></div></Reveal>
+              <Reveal>
+                <table className="doc-tbl">
+                  <thead><tr><th>Rol</th><th>Nombre</th><th>Correo</th><th className="center">Extensión</th><th className="center">Horario</th></tr></thead>
+                  <tbody>
+                    {[
+                      ['CISO / Security Manager','Juan López','jlopez@cyberhunters.mx','123','9:00 – 18:00'],
+                      ['Analista de Ciberseguridad','Ana García','agarcia@cyberhunters.mx','456','9:00 – 18:00'],
+                      ['Ing. Infraestructura','Alberto Valencia','avalencia@cyberhunters.mx','789','9:00 – 14:00'],
+                      ['QA / Tester de Software','Alejandro Vargas','avargas@cyberhunters.mx','101','10:00 – 21:00'],
+                    ].map(([rol,n,email,ext,h]) => (
+                      <tr key={n}><td className="em">{rol}</td><td>{n}</td><td className="mono">{email}</td><td className="center mono">{ext}</td><td className="center">{h}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Reveal>
+            </section>
+
+            {/* 6.4 Requisitos */}
+            <section id="requisitos" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.4</span><h2>Condiciones y requisitos</h2><span className="rule" /></div></Reveal>
+              <Reveal style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden' }}>
+                <div style={{ background:'var(--bg-0)', padding:28 }}>
+                  <div className="doc-badge ok" style={{ marginBottom:14 }}><span className="dot" />Infraestructura y acceso</div>
+                  {[['Visibilidad de activos','Contar con inventario o capacidad de escanear continuamente los activos para evitar puntos ciegos.'],['Integración con repositorios','Acceso y permisos de lectura en los repositorios de código fuente.'],['Conectividad para agentes','Capacidad de desplegar Cloud Agents para escalado masivo y reportes en tiempo real.']].map(([k,v]) => (
+                    <p key={k} style={{ fontSize:13.5, lineHeight:1.65, color:'var(--muted)', margin:'0 0 12px' }}><strong style={{ color:'var(--text)' }}>{k}:</strong> {v}</p>
+                  ))}
+                </div>
+                <div style={{ background:'var(--bg-0)', padding:28 }}>
+                  <div className="doc-badge warn" style={{ marginBottom:14 }}><span className="dot" />Operación y alcance</div>
+                  {[['Personal especializado','CISO, analistas, ingenieros de infraestructura y QA/testing.'],['Automatización como base','No sustituye las pruebas de penetración manuales para fallos lógicos complejos.'],['Notificación de nuevos activos','Las áreas deben avisar al equipo de seguridad para evitar puntos ciegos.'],['Aceptación de riesgo','Formalizar tanto la corrección técnica como la aceptación de riesgos no mitigables.']].map(([k,v]) => (
+                    <p key={k} style={{ fontSize:13.5, lineHeight:1.65, color:'var(--muted)', margin:'0 0 12px' }}><strong style={{ color:'var(--text)' }}>{k}:</strong> {v}</p>
+                  ))}
+                </div>
+              </Reveal>
+            </section>
+
+            {/* 6.5 Componentes */}
+            <section id="componentes" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.5</span><h2>Componentes de infraestructura</h2><span className="rule" /></div></Reveal>
+              <Reveal style={{ display:'flex', flexDirection:'column', gap:14 }}>
                 {[
-                  ['CISO / Security Manager','Juan López','jlopez@cyberhunters.mx','123','9:00 – 18:00'],
-                  ['Analista de Ciberseguridad','Ana García','agarcia@cyberhunters.mx','456','9:00 – 18:00'],
-                  ['Ing. Infraestructura','Alberto Valencia','avalencia@cyberhunters.mx','789','9:00 – 14:00'],
-                  ['QA / Tester de Software','Alejandro Vargas','avargas@cyberhunters.mx','101','10:00 – 21:00'],
-                ].map(([rol,n,email,ext,h]) => (
-                  <tr key={n}><td className="em">{rol}</td><td>{n}</td><td className="mono">{email}</td><td className="center mono">{ext}</td><td className="center">{h}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </Reveal>
-        </div>
-
-        {/* 6.4 Requisitos */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.4</span><h2>Condiciones y requisitos</h2><span className="rule" /></div></Reveal>
-          <Reveal style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:1, background:'var(--line)', border:'1px solid var(--line)', borderRadius:'var(--radius)', overflow:'hidden' }}>
-            <div style={{ background:'var(--bg-0)', padding:28 }}>
-              <div className="doc-badge ok" style={{ marginBottom:14 }}><span className="dot" />Infraestructura y acceso</div>
-              {[['Visibilidad de activos','Contar con inventario o capacidad de escanear continuamente los activos para evitar puntos ciegos.'],['Integración con repositorios','Acceso y permisos de lectura en los repositorios de código fuente.'],['Conectividad para agentes','Capacidad de desplegar Cloud Agents para escalado masivo y reportes en tiempo real.']].map(([k,v]) => (
-                <p key={k} style={{ fontSize:13.5, lineHeight:1.65, color:'var(--muted)', margin:'0 0 12px' }}><strong style={{ color:'var(--text)' }}>{k}:</strong> {v}</p>
-              ))}
-            </div>
-            <div style={{ background:'var(--bg-0)', padding:28 }}>
-              <div className="doc-badge warn" style={{ marginBottom:14 }}><span className="dot" />Operación y alcance</div>
-              {[['Personal especializado','CISO, analistas, ingenieros de infraestructura y QA/testing.'],['Automatización como base','No sustituye las pruebas de penetración manuales para fallos lógicos complejos.'],['Notificación de nuevos activos','Las áreas deben avisar al equipo de seguridad para evitar puntos ciegos.'],['Aceptación de riesgo','Formalizar tanto la corrección técnica como la aceptación de riesgos no mitigables.']].map(([k,v]) => (
-                <p key={k} style={{ fontSize:13.5, lineHeight:1.65, color:'var(--muted)', margin:'0 0 12px' }}><strong style={{ color:'var(--text)' }}>{k}:</strong> {v}</p>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-
-        {/* 6.5 Componentes */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.5</span><h2>Componentes de infraestructura</h2><span className="rule" /></div></Reveal>
-          <Reveal style={{ display:'flex', flexDirection:'column', gap:14 }}>
-            {[
-              { step:'CAPA 01', title:'Activos monitoreados', nodes:['Red física','Servidores','Máquinas virtuales','Estaciones de trabajo','Infraestructura cloud'] },
-              { step:'CAPA 02', title:'Escaneo automatizado', nodes:['Scanner de red · red + servidores','Scanner de hosts · VMs + estaciones','Scanner cloud · nube'] },
-              { step:'CAPA 03', title:'Gestión central', nodes:['Inventario de activos','Motor VPR · priorización','Dashboard ejecutivo','Generación de tickets'] },
-            ].map((layer, i) => (
-              <div key={layer.step}>
-                {i > 0 && <div style={{ display:'flex', justifyContent:'center', color:'var(--acc)', fontSize:18, margin:'0 0 14px' }}>↓</div>}
-                <div style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'20px 22px' }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-                    <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.12em', border:'1px solid var(--acc-dim)', padding:'4px 9px', borderRadius:50 }}>{layer.step}</span>
-                    <h4 style={{ fontSize:16, fontWeight:500, margin:0 }}>{layer.title}</h4>
+                  { step:'CAPA 01', title:'Activos monitoreados', nodes:['Red física','Servidores','Máquinas virtuales','Estaciones de trabajo','Infraestructura cloud'] },
+                  { step:'CAPA 02', title:'Escaneo automatizado', nodes:['Scanner de red · red + servidores','Scanner de hosts · VMs + estaciones','Scanner cloud · nube'] },
+                  { step:'CAPA 03', title:'Gestión central', nodes:['Inventario de activos','Motor VPR · priorización','Dashboard ejecutivo','Generación de tickets'] },
+                ].map((layer, i) => (
+                  <div key={layer.step}>
+                    {i > 0 && <div style={{ display:'flex', justifyContent:'center', color:'var(--acc)', fontSize:18, margin:'0 0 14px' }}>↓</div>}
+                    <div style={{ border:'1px solid var(--line)', borderRadius:'var(--radius)', background:'var(--bg-2)', padding:'20px 22px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+                        <span style={{ fontFamily:'var(--font-mono)', fontSize:11, color:'var(--acc)', letterSpacing:'.12em', border:'1px solid var(--acc-dim)', padding:'4px 9px', borderRadius:50 }}>{layer.step}</span>
+                        <h4 style={{ fontSize:16, fontWeight:500, margin:0 }}>{layer.title}</h4>
+                      </div>
+                      <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
+                        {layer.nodes.map((n) => <div key={n} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'var(--bg-0)', border:'1px solid var(--line)', borderRadius:8, fontSize:13, color:'#d4d9e0' }}>{n}</div>)}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ display:'flex', flexWrap:'wrap', gap:10 }}>
-                    {layer.nodes.map((n) => <div key={n} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', background:'var(--bg-0)', border:'1px solid var(--line)', borderRadius:8, fontSize:13, color:'#d4d9e0' }}>{n}</div>)}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </Reveal>
-        </div>
-
-        {/* 6.6 SLA */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.6</span><h2>Niveles de servicio · SLA</h2><span className="rule" /></div></Reveal>
-          <Reveal style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
-            {SLA_ITEMS.map(([title, desc]) => (
-              <div key={title} style={{ padding:'18px 20px', border:'1px solid var(--line)', borderTop:'2px solid var(--acc)', borderRadius:'var(--radius)', background:'var(--bg-0)' }}>
-                <h4 style={{ fontSize:14, fontWeight:600, margin:'0 0 7px', display:'flex', alignItems:'center', gap:9 }}><span style={{ width:7, height:7, borderRadius:'50%', background:'var(--acc)', display:'inline-block' }} />{title}</h4>
-                <p style={{ fontSize:13, lineHeight:1.6, color:'var(--muted)', margin:0 }}>{desc}</p>
-              </div>
-            ))}
-          </Reveal>
-        </div>
-
-        {/* 6.7 OLA */}
-        <div className="doc-block">
-          <Reveal><div className="doc-sec-h"><span className="idx">6.7</span><h2>Acuerdos operativos · OLA</h2><span className="rule" /></div></Reveal>
-          <Reveal>
-            <table className="doc-tbl">
-              <thead><tr><th>Elemento</th><th>Nivel</th><th>Compromiso</th></tr></thead>
-              <tbody>
-                {OLA_ROWS.map(([el,niv,comp]) => (
-                  <tr key={niv+comp}><td className="mono">{el}</td><td className="em">{niv}</td><td>{comp}</td></tr>
                 ))}
-              </tbody>
-            </table>
-          </Reveal>
-        </div>
+              </Reveal>
+            </section>
 
+            {/* 6.6 SLA */}
+            <section id="sla" style={{ scrollMarginTop:16, marginBottom:56 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.6</span><h2>Niveles de servicio · SLA</h2><span className="rule" /></div></Reveal>
+              <Reveal style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+                {SLA_ITEMS.map(([title, desc]) => (
+                  <div key={title} style={{ padding:'18px 20px', border:'1px solid var(--line)', borderTop:'2px solid var(--acc)', borderRadius:'var(--radius)', background:'var(--bg-0)' }}>
+                    <h4 style={{ fontSize:14, fontWeight:600, margin:'0 0 7px', display:'flex', alignItems:'center', gap:9 }}><span style={{ width:7, height:7, borderRadius:'50%', background:'var(--acc)', display:'inline-block' }} />{title}</h4>
+                    <p style={{ fontSize:13, lineHeight:1.6, color:'var(--muted)', margin:0 }}>{desc}</p>
+                  </div>
+                ))}
+              </Reveal>
+            </section>
+
+            {/* 6.7 OLA */}
+            <section id="ola" style={{ scrollMarginTop:16 }}>
+              <Reveal><div className="doc-sec-h"><span className="idx">6.7</span><h2>Acuerdos operativos · OLA</h2><span className="rule" /></div></Reveal>
+              <Reveal>
+                <table className="doc-tbl">
+                  <thead><tr><th>Elemento</th><th>Nivel</th><th>Compromiso</th></tr></thead>
+                  <tbody>
+                    {OLA_ROWS.map(([el,niv,comp]) => (
+                      <tr key={niv+comp}><td className="mono">{el}</td><td className="em">{niv}</td><td>{comp}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Reveal>
+            </section>
+
+          </main>
+        </div>
       </div>
 
       <div className="doc-foot">
