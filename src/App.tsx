@@ -7,6 +7,7 @@ import Introduction from './components/Introduction/Introduction';
 import Objective from './components/Objective/Objective';
 import MissionVision from './components/MissionVision/MissionVision';
 import Values from './components/Values/Values';
+import ProcessesModel from './components/ProcessesModel/ProcessesModel';
 import Footer from './components/Footer/Footer';
 import DocLayout from './pages/docs/DocLayout';
 import { DOCUMENTS } from './data/documents';
@@ -28,6 +29,7 @@ function LandingPage() {
         <Objective />
         <MissionVision />
         <Values />
+        <ProcessesModel />
       </main>
       <Footer />
     </>
